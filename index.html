@@ -1,81 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Календарь</title>
 <style>
-/* Общие стили */
-body {
-  font-family: sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.calendar-table td, .calendar-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.calendar-table th {
+  background-color: #f2f2f2;
+}
+
+.current-day {
   background-color: #f0f0f0;
 }
 
-.calendar-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
-  max-width: 600px;
-}
-
-/* Стили таблицы */
-table {
-  border-collapse: collapse;
-  width: 100%;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-th, td {
-  border: 1px solid #ddd;
-  text-align: center;
-  padding: 8px;
-  transition: background-color 0.3s ease;
-}
-
-th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-}
-
-a {
-  color: #333;
-  text-decoration: none;
-}
-
-/* Стили для текущей даты */
-.current-day {
-  background-color: #e0f0e0;
-}
-
-/* Анимация появления */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-/* Медиа-запрос для мобильных устройств */
-@media (max-width: 480px) {
-  table {
-    font-size: 14px; /* Уменьшаем шрифт на мобильных */
-  }
+.time-table {
+  margin-top: 10px;
+  border-collapse: collapse;
+  width: 100%;
+}
 
-  th, td {
-    padding: 6px; /* Уменьшаем отступы на мобильных */
-  }
+.time-table td, .time-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.time-table th {
+  background-color: #f2f2f2;
+}
+
+.time-slot {
+  cursor: pointer;
+}
+
+.time-slot.selected {
+  background-color: #f0f0f0;
 }
 </style>
 </head>
@@ -87,14 +63,35 @@ a {
   <button id="nextMonthBtn">Следующий месяц</button>
 </div>
 
+<div id="time-selector" style="display: none">
+  <h3>Выберите время и введите текст:</h3>
+  <table class="time-table">
+    <thead>
+      <tr>
+        <th>Время</th>
+        <th>Текст</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="time-slot" data-hour="9" data-minute="00">09:00</td>
+        <td><input type="text" data-hour="9" data-minute="00"></td>
+      </tr>
+      <tr>
+        <td class="time-slot" data-hour="10" data-minute="00">10:00</td>
+        <td><input type="text" data-hour="10" data-minute="00"></td>
+      </tr>
+      <!-- Добавьте больше строк для других временных интервалов -->
+    </tbody>
+  </table>
+  <button id="save-button">Сохранить</button>
+</div>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
-tg.expand(); //расширяем на все окно  
-
-let userId = tg.initDataUnsafe.user.id;
-let queryId = tg.initDataUnsafe.query_id;
+  let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
+  tg.expand(); //расширяем на все окно  
 
 
 function generateCalendar(month, year) {
@@ -103,17 +100,14 @@ function generateCalendar(month, year) {
     "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
   ];
 
-  // Создаем таблицу календаря
   const calendarTable = document.createElement("table");
-  calendarTable.classList.add("fade-in"); // Добавляем класс для анимации
+  calendarTable.classList.add("calendar-table", "fade-in");
 
-  // Заголовок с названием месяца и года
   const headerRow = calendarTable.insertRow();
   const headerCell = headerRow.insertCell();
   headerCell.colSpan = 7;
   headerCell.innerHTML = monthNames[month] + " " + year;
 
-  // Заголовки дней недели
   const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
   const daysRow = calendarTable.insertRow();
   daysOfWeek.forEach(day => {
@@ -121,49 +115,36 @@ function generateCalendar(month, year) {
     dayCell.innerHTML = day;
   });
 
-  // Вычисляем первый день месяца
-  firstDay = (new Date(year, month)).getDay() - 1; // 0 - понедельник, ... 6 - воскресенье
-  if (firstDay === -1) { // Если воскресенье, то сдвигаем на 7
+  let firstDay = (new Date(year, month)).getDay() - 1; 
+  if (firstDay === -1) { 
     firstDay = 6;
   }
 
-  // Вычисляем количество дней в месяце
   const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
-  // Получаем текущую дату для выделения
   const today = new Date();
   const currentDay = today.getDate();
 
-  // Заполняем календарь датами
   let date = 1;
   for (let i = 0; i < 6; i++) {
     const row = calendarTable.insertRow();
     for (let j = 0; j < 7; j++) {
       const cell = row.insertCell();
       if (i === 0 && j < firstDay) {
-        // Пустые ячейки до начала месяца
         cell.innerHTML = "";
       } else if (date > daysInMonth) {
-        // Прекращаем заполнение после конца месяца
         break;
       } else {
-        // Заполняем ячейку датой
-        // Создаем ссылку и добавляем её в ячейку
         const link = document.createElement('a');
-        link.href = "http://95.140.159.63:80/user-content/"+queryId;
+        link.href = "#"; 
         link.textContent = date;
-        link.target = '_blank'; 
+        link.dataset.date = `${year}-${month + 1}-${date}`; 
+        link.addEventListener('click', showTimeSelector); 
         cell.appendChild(link);
 
-        // Выделяем текущую дату
-        if (
-          date === currentDay &&
-          month === today.getMonth() &&
-          year === today.getFullYear()
-        ) {
+        if (date === currentDay && month === today.getMonth() && year === today.getFullYear()) {
           cell.classList.add("current-day");
         }
-
         date++;
       }
     }
@@ -174,11 +155,12 @@ function generateCalendar(month, year) {
 
 const calendarContainer = document.getElementById("calendar");
 const nextMonthBtn = document.getElementById("nextMonthBtn");
+const timeSelector = document.getElementById('time-selector');
+const saveButton = document.getElementById('save-button');
 
-currentMonth = new Date().getMonth();
-currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
 
-// Отображаем текущий месяц при загрузке
 calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 
 nextMonthBtn.addEventListener("click", () => {
@@ -187,10 +169,62 @@ nextMonthBtn.addEventListener("click", () => {
     currentMonth = 0;
     currentYear++;
   }
+  calendarContainer.innerHTML = ''; //если хотим, чтобы показывался только следующий месяц
   calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 });
 
-</script>
+function showTimeSelector(event) {
+  event.preventDefault(); 
+  const clickedDate = event.target.dataset.date;
+  const selectedDate = new Date(clickedDate);
 
+  // Отобразите выбранную дату где-то, например:
+  console.log("Выбранная дата:", selectedDate);
+
+  // Отобразите timeSelector
+  timeSelector.style.display = "block";
+}
+
+// Добавляем обработчик события для сохранения данных
+saveButton.addEventListener('click', () => {
+  // Получаем выбранную дату
+  const selectedDate = document.querySelector('.time-slot.selected');
+  if (!selectedDate) {
+    alert('Пожалуйста, выберите время!');
+    return;
+  }
+
+  const selectedHour = selectedDate.dataset.hour;
+  const selectedMinute = selectedDate.dataset.minute;
+  const selectedTextInput = document.querySelector(`input[data-hour="${selectedHour}"][data-minute="${selectedMinute}"]`);
+  const enteredText = selectedTextInput.value;
+
+  // Отправляем данные на сервер (или выполняем другие действия)
+  console.log('Выбранная дата:', selectedDate.dataset.date);
+  console.log('Выбранное время:', selectedHour, ':', selectedMinute);
+  console.log('Введенный текст:', enteredText);
+
+  let userId = tg.initDataUnsafe.user.id;
+  console.log('user_id:', userId);
+
+  // Сбрасываем выделение и скрываем форму
+  timeSelector.style.display = "none";
+});
+
+// Добавляем обработчики событий для выбора времени
+const timeSlots = document.querySelectorAll('.time-slot');
+timeSlots.forEach(slot => {
+  slot.addEventListener('click', () => {
+    // Удаляем выделение с предыдущего слота
+    const currentlySelected = document.querySelector('.time-slot.selected');
+    if (currentlySelected) {
+      currentlySelected.classList.remove('selected');
+    }
+
+    // Выделяем текущий слот
+    slot.classList.add('selected');
+  });
+});
+</script>
 </body>
 </html>
