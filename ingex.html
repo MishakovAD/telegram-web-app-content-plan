@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Календарь</title>
+<style>
+/* Общие стили */
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Стили таблицы */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 8px;
+  transition: background-color 0.3s ease;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+a {
+  color: #333;
+  text-decoration: none;
+}
+
+/* Стили для текущей даты */
+.current-day {
+  background-color: #e0f0e0;
+}
+
+/* Анимация появления */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Медиа-запрос для мобильных устройств */
+@media (max-width: 480px) {
+  table {
+    font-size: 14px; /* Уменьшаем шрифт на мобильных */
+  }
+
+  th, td {
+    padding: 6px; /* Уменьшаем отступы на мобильных */
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="calendar-container">
+  <h2>Контент-план</h2>
+  <div id="calendar"></div>
+  <button id="nextMonthBtn">Следующий месяц</button>
+</div>
+
+<div class="ucoz-promo">
+ $POWERED_BY$
+</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script>
+let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
+tg.expand(); //расширяем на все окно  
+
+let userId = tg.initDataUnsafe.user.id;
+let queryId = tg.initDataUnsafe.query_id;
+
+
+function generateCalendar(month, year) {
+  const monthNames = [
+    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+  ];
+
+  // Создаем таблицу календаря
+  const calendarTable = document.createElement("table");
+  calendarTable.classList.add("fade-in"); // Добавляем класс для анимации
+
+  // Заголовок с названием месяца и года
+  const headerRow = calendarTable.insertRow();
+  const headerCell = headerRow.insertCell();
+  headerCell.colSpan = 7;
+  headerCell.innerHTML = monthNames[month] + " " + year;
+
+  // Заголовки дней недели
+  const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+  const daysRow = calendarTable.insertRow();
+  daysOfWeek.forEach(day => {
+    const dayCell = daysRow.insertCell();
+    dayCell.innerHTML = day;
+  });
+
+  // Вычисляем первый день месяца
+  firstDay = (new Date(year, month)).getDay() - 1; // 0 - понедельник, ... 6 - воскресенье
+  if (firstDay === -1) { // Если воскресенье, то сдвигаем на 7
+    firstDay = 6;
+  }
+
+  // Вычисляем количество дней в месяце
+  const daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+  // Получаем текущую дату для выделения
+  const today = new Date();
+  const currentDay = today.getDate();
+
+  // Заполняем календарь датами
+  let date = 1;
+  for (let i = 0; i < 6; i++) {
+    const row = calendarTable.insertRow();
+    for (let j = 0; j < 7; j++) {
+      const cell = row.insertCell();
+      if (i === 0 && j < firstDay) {
+        // Пустые ячейки до начала месяца
+        cell.innerHTML = "";
+      } else if (date > daysInMonth) {
+        // Прекращаем заполнение после конца месяца
+        break;
+      } else {
+        // Заполняем ячейку датой
+        // Создаем ссылку и добавляем её в ячейку
+        const link = document.createElement('a');
+        link.href = "http://95.140.159.63:80/user-content/"+queryId;
+        link.textContent = date;
+        link.target = '_blank'; 
+        cell.appendChild(link);
+
+        // Выделяем текущую дату
+        if (
+          date === currentDay &&
+          month === today.getMonth() &&
+          year === today.getFullYear()
+        ) {
+          cell.classList.add("current-day");
+        }
+
+        date++;
+      }
+    }
+  }
+
+  return calendarTable;
+}
+
+const calendarContainer = document.getElementById("calendar");
+const nextMonthBtn = document.getElementById("nextMonthBtn");
+
+currentMonth = new Date().getMonth();
+currentYear = new Date().getFullYear();
+
+// Отображаем текущий месяц при загрузке
+calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+
+nextMonthBtn.addEventListener("click", () => {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+});
+
+</script>
+
+</body>
+</html>
