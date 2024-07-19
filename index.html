@@ -1,230 +1,497 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-.calendar-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+ <title>Контент-план</title>
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+ <style>
+  .calendar-container {
+   margin-bottom: 20px;
+  }
 
-.calendar-table td, .calendar-table th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
+  .calendar-table {
+   width: 100%;
+   border-collapse: collapse;
+   font-size: 1.2rem;
+  }
 
-.calendar-table th {
-  background-color: #f2f2f2;
-}
+  .calendar-table td, .calendar-table th {
+   border: 1px solid #ddd;
+   padding: 10px;
+   text-align: center;
+   position: relative; 
+  }
 
-.current-day {
-  background-color: #f0f0f0;
-}
+  .calendar-table th {
+   background-color: #f2f2f2;
+   font-weight: bold;
+  }
 
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
+  .current-day {
+   background-color: #f0f0f0;
+   cursor: pointer;
+   background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
+  }
 
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
+  .fade-in {
+   animation: fadeIn 0.5s ease-in-out;
+  }
 
-.time-table {
-  margin-top: 10px;
-  border-collapse: collapse;
-  width: 100%;
-}
+  @keyframes fadeIn {
+   0% { opacity: 0; }
+   100% { opacity: 1; }
+  }
 
-.time-table td, .time-table th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
+  .time-form {
+   margin-top: 20px;
+   display: none; 
+  }
 
-.time-table th {
-  background-color: #f2f2f2;
-}
+  .time-table {
+   border-collapse: collapse;
+   width: 100%;
+  }
 
-.time-slot {
-  cursor: pointer;
-}
+  .time-table td, .time-table th {
+   border: 1px solid #ddd;
+   padding: 8px;
+   text-align: center;
+  }
 
-.time-slot.selected {
-  background-color: #f0f0f0;
-}
-</style>
+  .time-table th {
+   background-color: #f2f2f2;
+  }
+
+  .time-slot {
+   cursor: pointer;
+  }
+
+  .time-slot.selected {
+   background-color: #f0f0f0;
+  }
+
+  .time-input {
+   width: 80px; 
+   padding: 8px;
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   font-size: 1rem;
+   margin-right: 10px;
+  }
+
+  .time-input.invalid {
+   border-color: red;
+  }
+
+  .time-entry {
+   display: flex;
+   align-items: center;
+   margin-bottom: 10px;
+  }
+
+  .time-entry .type-select {
+   margin-left: 10px;
+   padding: 8px;
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   font-size: 1rem;
+   width: 300px; 
+  }
+
+  .time-entry .text-input {
+   flex: 1; 
+   margin-left: 10px;
+   padding: 8px;
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   font-size: 1rem;
+   resize: vertical;
+   height: 180px; 
+   width: calc(100% - 220px);
+  }
+
+  .time-and-type {
+   display: flex;
+   align-items: center;
+   margin-bottom: 10px;
+  }
+
+  .selected-day {
+   background-color: lightgreen;
+  }
+
+  .past-day {
+   background-color: #ddd; 
+   cursor: default; 
+  }
+  .content-count {
+   position: absolute;
+   bottom: 5px;
+   right: 5px;
+   font-size: 12px;
+   color: green;
+  }
+
+  .delete-button {
+   margin-left: 10px;
+   background-color: #007bff; /* Цвет как у кнопок "Добавить" и "Сохранить" */
+   border: none;
+   color: white;
+   padding: 8px 16px;
+   text-align: center;
+   text-decoration: none;
+   display: inline-block;
+   font-size: 16px;
+   border-radius: 4px;
+   cursor: pointer;
+  }
+
+  .delete-button:hover {
+   background-color: #0069d9;
+  }
+
+  @media (max-width: 768px) {
+   .calendar-container {
+    margin-bottom: 10px;
+   }
+   .calendar-table td, .calendar-table th {
+    padding: 8px;
+    font-size: 1rem;
+   }
+  }
+ </style>
 </head>
 <body>
 
-<div class="calendar-container">
-  <h2>Контент-план</h2>
-  <div id="calendar"></div>
-  <button id="nextMonthBtn">Следующий месяц</button>
-</div>
+ <div class="container-fluid">
+  <div class="row">
+   <div class="col-12">
+    <h2 class="text-center">Контент-план</h2>
+    <div id="calendar" class="text-center"></div>
+    <button id="nextMonthBtn" class="btn btn-primary">Следующий месяц</button>
+   </div>
+  </div>
+  <div class="row">
+   <div class="col-12">
+    <div class="time-form">
+     <h3>Выберите время и введите текст:</h3>
+     <div id="timeEntries"></div>
+     <button id="add-entry-button" class="btn btn-primary">Добавить запись</button>
+     <button id="save-button" class="btn btn-primary">Сохранить</button>
+    </div>
+   </div>
+  </div>
 
-<div id="time-selector" style="display: none">
-  <h3>Выберите время и введите текст:</h3>
-  <table class="time-table">
-    <thead>
-      <tr>
-        <th>Время</th>
-        <th>Текст</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="time-slot" data-hour="9" data-minute="00">09:00</td>
-        <td><input type="text" data-hour="9" data-minute="00"></td>
-      </tr>
-      <tr>
-        <td class="time-slot" data-hour="10" data-minute="00">10:00</td>
-        <td><input type="text" data-hour="10" data-minute="00"></td>
-      </tr>
-      <!-- Добавьте больше строк для других временных интервалов -->
-    </tbody>
-  </table>
-  <button id="save-button">Сохранить</button>
-</div>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
 
-<script>
-  let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
-  tg.expand(); //расширяем на все окно  
+   const calendarContainer = document.getElementById("calendar");
+   const nextMonthBtn = document.getElementById("nextMonthBtn");
+   const timeForm = document.querySelector('.time-form');
+   const saveButton = document.getElementById('save-button');
+   const addEntryButton = document.getElementById('add-entry-button');
+   const timeEntriesContainer = document.getElementById('timeEntries');
 
+   let currentMonth = new Date().getMonth();
+   let currentYear = new Date().getFullYear();
+   let selectedDate = null;
 
-function generateCalendar(month, year) {
-  const monthNames = [
-    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-  ];
+   calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 
-  const calendarTable = document.createElement("table");
-  calendarTable.classList.add("calendar-table", "fade-in");
+   nextMonthBtn.addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+     currentMonth = 0;
+     currentYear++;
+    }
+    calendarContainer.innerHTML = '';
+    calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+   });
 
-  const headerRow = calendarTable.insertRow();
-  const headerCell = headerRow.insertCell();
-  headerCell.colSpan = 7;
-  headerCell.innerHTML = monthNames[month] + " " + year;
+   function generateCalendar(month, year) {
+    const monthNames = [
+     "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+     "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ];
 
-  const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-  const daysRow = calendarTable.insertRow();
-  daysOfWeek.forEach(day => {
-    const dayCell = daysRow.insertCell();
-    dayCell.innerHTML = day;
-  });
+    const calendarTable = document.createElement("table");
+    calendarTable.classList.add("calendar-table", "fade-in", "table", "table-bordered");
 
-  let firstDay = (new Date(year, month)).getDay() - 1; 
-  if (firstDay === -1) { 
-    firstDay = 6;
-  }
+    const headerRow = calendarTable.insertRow();
+    const headerCell = headerRow.insertCell();
+    headerCell.colSpan = 7;
+    headerCell.innerHTML = monthNames[month] + " " + year;
 
-  const daysInMonth = 32 - new Date(year, month, 32).getDate();
+    const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+    const daysRow = calendarTable.insertRow();
+    daysOfWeek.forEach(day => {
+     const dayCell = daysRow.insertCell();
+     dayCell.innerHTML = day;
+    });
 
-  const today = new Date();
-  const currentDay = today.getDate();
+    let firstDay = (new Date(year, month)).getDay() - 1;
+    if (firstDay === -1) {
+     firstDay = 6;
+    }
 
-  let date = 1;
-  for (let i = 0; i < 6; i++) {
-    const row = calendarTable.insertRow();
-    for (let j = 0; j < 7; j++) {
-      const cell = row.insertCell();
-      if (i === 0 && j < firstDay) {
-        cell.innerHTML = "";
-      } else if (date > daysInMonth) {
-        break;
-      } else {
-        const link = document.createElement('a');
-        link.href = "#"; 
-        link.textContent = date;
-        link.dataset.date = `${year}-${month + 1}-${date}`; 
-        link.addEventListener('click', showTimeSelector); 
-        cell.appendChild(link);
+    const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
-        if (date === currentDay && month === today.getMonth() && year === today.getFullYear()) {
-          cell.classList.add("current-day");
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonthNumber = today.getMonth();
+
+    let date = 1;
+    let contentData = null;
+     
+    fetchContentCount(month, year)
+     .then(data => {
+      contentData = data;
+
+      for (let i = 0; i < 6; i++) {
+       const row = calendarTable.insertRow();
+       for (let j = 0; j < 7; j++) {
+        const cell = row.insertCell();
+
+        if (i === 0 && j < firstDay) {
+         cell.innerHTML = "";
+        } else if (date > daysInMonth) {
+         break;
+        } else {
+         const fullDate = new Date(year, month, date);
+         cell.dataset.date = `${year}-${month + 1}-${date}`;
+         cell.innerHTML = date;
+         cell.addEventListener('click', showTimeSelector);
+          
+         if (fullDate < today) {
+          cell.classList.add("past-day");
+          cell.removeEventListener('click', showTimeSelector); // Делаем ячейку неактивной
+         }
+
+         if (date === currentDay && month === currentMonthNumber && year === today.getFullYear()) {
+          cell.classList.remove("past-day");
+          cell.addEventListener('click', showTimeSelector);
+         }
+
+         if (contentData) {
+          const contentForDate = contentData.find(item => item.date === cell.dataset.date);
+          if (contentForDate) {
+           const contentCount = document.createElement('span');
+           contentCount.classList.add('content-count');
+           contentCount.textContent = contentForDate.count;
+           cell.appendChild(contentCount);
+          }
+         }
+
+         date++;
         }
-        date++;
+       }
       }
+     })
+     .catch(error => {
+      console.error("Ошибка при получении количества заполненных шаблонов:", error);
+     });
+
+    return calendarTable;
+   }
+
+   function showTimeSelector(event) {
+    event.preventDefault();
+    const clickedDate = event.target.dataset.date;
+    selectedDate = new Date(clickedDate);
+
+    const selectedDays = document.querySelectorAll('.selected-day');
+    selectedDays.forEach(day => day.classList.remove('selected-day'));
+
+    event.target.classList.add('selected-day');
+
+    console.log("Выбранная дата:", selectedDate);
+
+    timeForm.style.display = "block";
+    timeEntriesContainer.innerHTML = '';
+
+    fetch(`http://localhost:8082/content?date=${selectedDate.toISOString().split('T')[0]}`)
+     .then(response => response.json())
+     .then(data => {
+      data.forEach((entry, index) => {
+       const timeEntryDiv = document.createElement('div');
+       timeEntryDiv.classList.add('time-entry');
+
+       const timeInput = document.createElement('input');
+       timeInput.classList.add('time-input');
+       timeInput.type = 'text';
+       timeInput.value = entry.time;
+       timeInput.disabled = true; 
+       timeInput.addEventListener('input', validateTimeInput);
+       timeInput.addEventListener('input', addColon); 
+
+       const typeSelect = document.createElement('select');
+       typeSelect.classList.add('type-select');
+       typeSelect.value = entry.type;
+       typeSelect.disabled = true; 
+       typeSelect.innerHTML = `
+        <option value="Уточнить детали" ${entry.type === 'Уточнить детали' ? 'selected' : ''}>Уточнить детали</option>
+        <option value="Отредактировать готовый пост" ${entry.type === 'Отредактировать готовый пост' ? 'selected' : ''}>Отредактировать готовый пост</option>
+        <option value="Сгенерировать пост без деталей" ${entry.type === 'Сгенерировать пост без деталей' ? 'selected' : ''}>Сгенерировать пост без деталей</option>
+       `;
+
+       const textInput = document.createElement('textarea');
+       textInput.classList.add('text-input');
+       textInput.placeholder = 'Введите текст';
+       textInput.value = entry.text;
+
+       // Кнопка удаления
+       const deleteButton = document.createElement('button');
+       deleteButton.classList.add('delete-button');
+       deleteButton.textContent = 'Удалить запись';
+       deleteButton.addEventListener('click', () => {
+         // Удаление записи из timeEntriesContainer
+         timeEntryDiv.remove();
+       });
+
+       timeEntryDiv.appendChild(timeInput);
+       timeEntryDiv.appendChild(typeSelect); 
+       timeEntryDiv.appendChild(textInput);
+       timeEntryDiv.appendChild(deleteButton);
+
+       timeEntriesContainer.appendChild(timeEntryDiv);
+      });
+
+      addTimeEntry();
+     })
+     .catch(error => {
+      console.error("Ошибка при получении данных:", error);
+     });
+   }
+
+   function fetchContentCount(month, year) {
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const firstMonthValue = firstDayOfMonth.toISOString().split('T')[0];
+    const lastMonthValue = lastDayOfMonth.toISOString().split('T')[0];
+
+    return fetch(`http://localhost:8082/content-count?date=${firstMonthValue}&endDate=${lastMonthValue}`)
+     .then(response => response.json())
+     .catch(error => {
+      console.error("Ошибка при получении количества заполненных шаблонов:", error);
+      throw error; 
+     });
+   }
+
+   function addTimeEntry() {
+    const timeEntryDiv = document.createElement('div');
+    timeEntryDiv.classList.add('time-entry');
+
+    const timeInput = document.createElement('input');
+    timeInput.classList.add('time-input');
+    timeInput.type = 'text';
+    timeInput.placeholder = 'HH:mm';
+    timeInput.addEventListener('input', validateTimeInput);
+    timeInput.addEventListener('input', addColon);
+
+    const typeSelect = document.createElement('select');
+    typeSelect.classList.add('type-select');
+    typeSelect.innerHTML = `
+     <option value="Уточнить детали">Уточнить детали</option>
+     <option value="Отредактировать готовый пост">Отредактировать готовый пост</option>
+     <option value="Сгенерировать пост без деталей">Сгенерировать пост без деталей</option>
+    `;
+
+    const textInput = document.createElement('textarea'); 
+    textInput.classList.add('text-input');
+    textInput.placeholder = 'Введите текст';
+
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('delete-button');
+    deleteButton.textContent = 'Удалить запись';
+    deleteButton.addEventListener('click', () => {
+     // Удаление записи из timeEntriesContainer
+     timeEntryDiv.remove();
+    });
+
+    timeEntryDiv.appendChild(timeInput);
+    timeEntryDiv.appendChild(typeSelect); 
+    timeEntryDiv.appendChild(textInput);
+    timeEntryDiv.appendChild(deleteButton);
+
+    timeEntriesContainer.appendChild(timeEntryDiv);
+   }
+
+   function validateTimeInput(event) {
+    const input = event.target;
+    const timeRegex = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+
+    if (timeRegex.test(input.value)) {
+     input.classList.remove('invalid');
+    } else {
+     input.classList.add('invalid');
     }
-  }
+   }
 
-  return calendarTable;
-}
-
-const calendarContainer = document.getElementById("calendar");
-const nextMonthBtn = document.getElementById("nextMonthBtn");
-const timeSelector = document.getElementById('time-selector');
-const saveButton = document.getElementById('save-button');
-
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-
-calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
-
-nextMonthBtn.addEventListener("click", () => {
-  currentMonth++;
-  if (currentMonth > 11) {
-    currentMonth = 0;
-    currentYear++;
-  }
-  calendarContainer.innerHTML = ''; //если хотим, чтобы показывался только следующий месяц
-  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
-});
-
-function showTimeSelector(event) {
-  event.preventDefault(); 
-  const clickedDate = event.target.dataset.date;
-  const selectedDate = new Date(clickedDate);
-
-  // Отобразите выбранную дату где-то, например:
-  console.log("Выбранная дата:", selectedDate);
-
-  // Отобразите timeSelector
-  timeSelector.style.display = "block";
-}
-
-// Добавляем обработчик события для сохранения данных
-saveButton.addEventListener('click', () => {
-  // Получаем выбранную дату
-  const selectedDate = document.querySelector('.time-slot.selected');
-  if (!selectedDate) {
-    alert('Пожалуйста, выберите время!');
-    return;
-  }
-
-  const selectedHour = selectedDate.dataset.hour;
-  const selectedMinute = selectedDate.dataset.minute;
-  const selectedTextInput = document.querySelector(`input[data-hour="${selectedHour}"][data-minute="${selectedMinute}"]`);
-  const enteredText = selectedTextInput.value;
-
-  // Отправляем данные на сервер (или выполняем другие действия)
-  console.log('Выбранная дата:', selectedDate.dataset.date);
-  console.log('Выбранное время:', selectedHour, ':', selectedMinute);
-  console.log('Введенный текст:', enteredText);
-
-  let userId = tg.initDataUnsafe.user.id;
-  console.log('user_id:', userId);
-
-  // Сбрасываем выделение и скрываем форму
-  timeSelector.style.display = "none";
-});
-
-// Добавляем обработчики событий для выбора времени
-const timeSlots = document.querySelectorAll('.time-slot');
-timeSlots.forEach(slot => {
-  slot.addEventListener('click', () => {
-    // Удаляем выделение с предыдущего слота
-    const currentlySelected = document.querySelector('.time-slot.selected');
-    if (currentlySelected) {
-      currentlySelected.classList.remove('selected');
+   function addColon(event) {
+    const input = event.target;
+    if (input.value.length === 2) {
+     input.value += ':';
     }
+   }
 
-    // Выделяем текущий слот
-    slot.classList.add('selected');
-  });
-});
-</script>
+   addEntryButton.addEventListener('click', addTimeEntry);
+
+   //Сохранение внесенных данных. На серевере полностью перезаписывается день переданными данными.
+   saveButton.addEventListener('click', () => {
+    const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
+    const data = [];
+
+    timeEntries.forEach(entry => {
+     const timeInput = entry.querySelector('.time-input');
+     const typeSelect = entry.querySelector('.type-select');
+     const textInput = entry.querySelector('.text-input');
+
+     if (timeInput.classList.contains('invalid')) {
+      alert('Некорректный формат времени в одной из записей.');
+      return;
+     }
+
+     const [hours, minutes] = timeInput.value.split(':');
+     data.push({
+      date: selectedDate.toISOString().split('T')[0], 
+      time: `${hours}:${minutes}`,
+      type: typeSelect.value,
+      text: textInput.value
+     });
+    });
+
+    console.log('Данные для сохранения:', data);
+    fetch(`http://localhost:8082/content`, {
+     method: 'POST',
+     headers: {
+      'Content-Type': 'application/json'
+     },
+     body: JSON.stringify(data)
+    })
+    .then(response => {
+     if (!response.ok) {
+      throw new Error('Ошибка при отправке данных на сервер');
+     }
+     console.log('Данные успешно отправлены на сервер');
+     return response.json(); 
+    })
+    .then(data => {
+     console.log('Ответ от сервера:', data);
+    })
+    .catch(error => {
+     console.error('Произошла ошибка:', error);
+    });
+
+    timeForm.style.display = "none";
+    const selectedDays = document.querySelectorAll('.selected-day');
+    selectedDays.forEach(day => day.classList.remove('selected-day'));
+   });
+  </script>
+ </div>
 </body>
 </html>
