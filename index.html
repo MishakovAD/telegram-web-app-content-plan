@@ -450,7 +450,6 @@
    if (id) {
     //если пришел готовый пост от сервера
     timeCheckboxDeleteRow.appendChild(timeInput);
-    timeCheckboxDeleteRow.appendChild(deleteButton); 
     
     timeEntryDiv.dataset.id = id;
     timeInput.value = time;
@@ -481,7 +480,6 @@
 
     timeCheckboxDeleteRow.appendChild(timeInput);
     timeCheckboxDeleteRow.appendChild(checkboxContainer);
-    timeCheckboxDeleteRow.appendChild(deleteButton);
 
     selectRow.appendChild(typeSelect);
     selectRow.appendChild(templateSelect);
@@ -490,6 +488,7 @@
     timeEntryDiv.appendChild(selectRow);
     timeEntryDiv.appendChild(textInput);
    }
+   timeEntryDiv.appendChild(deleteButton);
    timeCheckboxDeleteRow.appendChild(timeInputWrapper); // Добавляем обёртку в строку
 
    timeEntriesContainer.appendChild(timeEntryDiv);
