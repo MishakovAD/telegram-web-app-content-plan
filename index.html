@@ -1,218 +1,219 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>Контент-план</title>
- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
- <style>
-  .calendar-container {
-   margin-bottom: 20px;
-  }
+  <title>Контент-план</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .calendar-container {
+      margin-bottom: 20px;
+    }
 
-  .calendar-table {
-   width: 100%;
-   border-collapse: collapse;
-   font-size: 1.2rem;
-  }
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.2rem;
+      table-layout: fixed; /* Фиксированная ширина столбцов */
+    }
 
-  .calendar-table td, .calendar-table th {
-   border: 1px solid #ddd;
-   padding: 10px;
-   text-align: center;
-   position: relative;
-   cursor: pointer;
-  }
+    .calendar-table td, .calendar-table th {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      width: 14.28%; /* Равномерное распределение по ширине для 7 дней */
+      word-break: break-word; /* Разрешаем перенос слов */
+    }
 
-  .calendar-table th {
-   background-color: #f2f2f2;
-   font-weight: bold;
-  }
+    .calendar-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
 
-  .current-day {
-   background-color: #f0f0f0;
-   background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
-  }
+    .current-day {
+      background-color: #f0f0f0;
+      background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
+    }
 
-  .fade-in {
-   animation: fadeIn 0.5s ease-in-out;
-  }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
 
-  @keyframes fadeIn {
-   0% { opacity: 0; }
-   100% { opacity: 1; }
-  }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
 
-  .time-form {
-   margin-top: 20px;
-   display: none;
-  }
+    .time-form {
+      margin-top: 20px;
+      display: none;
+    }
 
-  /* Стили для каждой записи времени */
-  .time-entry {
-   display: flex;
-   flex-direction: column;
-   margin-bottom: 20px;
-   border: 1px solid #ddd;
-   padding: 10px;
-   border-radius: 5px;
-  }
+    /* Стили для каждой записи времени */
+    .time-entry {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+    }
 
-  .time-entry .time-input,
-  .time-entry .type-select,
-  .time-entry .template-select,
-  .time-entry .text-input,
-  .time-entry .image-url-input {
-   width: 100%;
-   padding: 8px;
-   border: 1px solid #ddd;
-   border-radius: 4px;
-   font-size: 1rem;
-   margin-bottom: 8px;
-  }
+    .time-entry .time-input,
+    .time-entry .type-select,
+    .time-entry .template-select,
+    .time-entry .text-input,
+    .time-entry .image-url-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      box-sizing: border-box; /* Включаем отступы и границы в общую ширину */
+    }
 
-  /* Поля выбора типа и шаблона размещаем в одну строку */
-  .select-row {
-   display: flex;
-   gap: 10px;
-  }
+    .time-entry .text-input,
+    .time-entry .image-url-input {
+      height: 120px;
+      resize: vertical;
+    }
 
-  .select-row .type-select,
-  .select-row .template-select {
-   flex: 1;
-  }
+    .time-input.invalid {
+      border-color: red;
+    }
 
-  .time-entry .text-input,
-  .time-entry .image-url-input {
-   height: 120px;
-   resize: vertical;
-  }
+    .selected-day {
+      background-color: lightgreen;
+    }
 
-  .time-input.invalid {
-   border-color: red;
-  }
+    .past-day {
+      background-color: #ddd;
+      cursor: default;
+    }
 
-  .selected-day {
-   background-color: lightgreen;
-  }
+    .content-count {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      font-size: 12px;
+      color: green;
+    }
 
-  .past-day {
-   background-color: #ddd;
-   cursor: default;
-  }
+    /* Стили для строки с временем, чекбоксом и кнопкой */
+    .time-checkbox-delete-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; /* Разрешаем перенос элементов */
+    }
 
-  .content-count {
-   position: absolute;
-   bottom: 5px;
-   right: 5px;
-   font-size: 12px;
-   color: green;
-  }
+    .time-input-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px; /* Отступ снизу для мобильных */
+    }
 
-  /* Стили для строки с временем, чекбоксом и кнопкой */
-  .time-checkbox-delete-row {
-   display: flex;
-   align-items: center; /* Вертикальное выравнивание */
-   justify-content: flex-start; /* Выравнивание по левому краю */
-  }
+    .time-checkbox-delete-row .time-input {
+      width: 80px;  
+      text-align: center; 
+      margin-right: 10px; 
+    }
 
-  .time-input-wrapper { /* Новая обёртка для поля ввода и чекбокса */
-   display: flex;
-   align-items: center; /* Вертикальное выравнивание */
-  }
+    .checkbox-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; 
+    }
 
-  .time-checkbox-delete-row .time-input {
-   width: 80px; 
-   text-align: center; /* Центрируем текст в поле времени */
-   margin-right: 10px; /* Отступ справа от поля ввода */
-  }
+    .delete-button {
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-left: auto; 
+      align-self: flex-start; 
+    }
 
-  .checkbox-container {
-   display: flex;
-   flex-direction: column;
-   align-items: flex-start; /* Выравниваем чекбокс и лейбл по левому краю */
-  }
+    .delete-button:hover {
+      background-color: #c82333;
+    }
 
-  .delete-button {
-   background-color: #dc3545;
-   border: none;
-   color: white;
-   padding: 8px 16px;
-   text-align: center;
-   text-decoration: none;
-   display: inline-block;
-   font-size: 16px;
-   border-radius: 4px;
-   cursor: pointer;
-   white-space: nowrap;
-   margin-left: auto; /* Автоматический отступ слева для прижатия к правому краю */
-   align-self: flex-start; /* Выравнивание по верхнему краю */ 
-  }
+    /* Дополнительные стили для мобильных устройств */
+    @media (max-width: 768px) {
+      .calendar-table {
+        font-size: 1rem;
+      }
 
-  .delete-button:hover {
-   background-color: #c82333;
-  }
+      .calendar-table td, .calendar-table th {
+        padding: 8px;
+      }
 
-  /* Дополнительные стили для мобильных устройств */
-  @media (max-width: 768px) {
-   .calendar-container {
-    margin-bottom: 10px;
-   }
+      .time-entry {
+        margin-bottom: 10px;
+      }
 
-   .calendar-table td, .calendar-table th {
-    padding: 8px;
-    font-size: 1rem;
-   }
+      .select-row {
+        flex-direction: column;
+        gap: 8px;
+      }
 
-   .time-entry {
-    margin-bottom: 10px;
-   }
+      .select-row .type-select,
+      .select-row .template-select {
+        flex: 1;
+        width: 100%;
+      }
 
-   .select-row {
-    flex-direction: column;
-    gap: 8px;
-   }
+      .time-checkbox-delete-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-   .select-row .type-select,
-   .select-row .template-select {
-    flex: 1;
-    width: 100%;
-   }
+      .time-checkbox-delete-row .time-input {
+        margin-bottom: 8px;
+      }
 
-   .time-checkbox-delete-row {
-    flex-direction: column;
-    align-items: flex-start;
-   }
-
-   .time-checkbox-delete-row .time-input {
-    margin-bottom: 8px;
-   }
-  }
- </style>
+      .delete-button {
+        margin-left: 0; /* Убираем автоматический отступ слева */
+        margin-top: 8px; /* Добавляем отступ сверху */
+        width: 100%; /* Растягиваем кнопку на всю ширину */
+      }
+    }
+  </style>
 </head>
 <body>
- <div class="container-fluid">
-  <div class="row">
-   <div class="col-12">
-    <h2 class="text-center">Контент-план</h2>
-    <div id="calendar" class="text-center"></div>
-    <button id="nextMonthBtn" class="btn btn-primary">Следующий месяц</button>
-   </div>
-  </div>
-  <div class="row">
-   <div class="col-12">
-    <div class="time-form" id="timeForm">
-     <h3>Выберите время и введите текст:</h3>
-     <div id="timeEntries"></div>
-     <button id="add-entry-button" class="btn btn-primary">Добавить запись</button>
-     <button id="save-button" class="btn btn-primary">Сохранить</button>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="text-center">Контент-план</h2>
+        <div id="calendar" class="text-center"></div>
+        <button id="nextMonthBtn" class="btn btn-primary">Следующий месяц</button>
+      </div>
     </div>
-   </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="time-form" id="timeForm">
+          <h3>Выберите время и введите текст:</h3>
+          <div id="timeEntries"></div>
+          <button id="add-entry-button" class="btn btn-primary">Добавить запись</button>
+          <button id="save-button" class="btn btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </div>
   </div>
- </div>
 
- <script src="https://telegram.org/js/telegram-web-app.js"></script>
- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
  <script>
   let tg = window.Telegram.WebApp;
@@ -447,6 +448,7 @@
    imageUrlInput.value = imageUrl;
 
    if (id) {
+    //если пришел готовый пост от сервера
     timeCheckboxDeleteRow.appendChild(timeInput);
     timeCheckboxDeleteRow.appendChild(deleteButton); 
     
