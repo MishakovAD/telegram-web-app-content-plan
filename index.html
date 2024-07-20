@@ -1,547 +1,575 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Контент-план</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <style>
-    .calendar-container {
-      margin-bottom: 20px;
-    }
+ <title>Контент-план</title>
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+ <style>
+  .calendar-container {
+   margin-bottom: 20px;
+  }
 
-    .calendar-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 1.2rem;
-    }
+  .calendar-table {
+   width: 100%;
+   border-collapse: collapse;
+   font-size: 1.2rem;
+  }
 
-    .calendar-table td, .calendar-table th {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-      position: relative;
-      cursor: pointer;
-    }
+  .calendar-table td, .calendar-table th {
+   border: 1px solid #ddd;
+   padding: 10px;
+   text-align: center;
+   position: relative;
+   cursor: pointer;
+  }
 
-    .calendar-table th {
-      background-color: #f2f2f2;
-      font-weight: bold;
-    }
+  .calendar-table th {
+   background-color: #f2f2f2;
+   font-weight: bold;
+  }
 
-    .current-day {
-      background-color: #f0f0f0;
-      background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
-    }
+  .current-day {
+   background-color: #f0f0f0;
+   background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
+  }
 
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
-    }
+  .fade-in {
+   animation: fadeIn 0.5s ease-in-out;
+  }
 
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
+  @keyframes fadeIn {
+   0% { opacity: 0; }
+   100% { opacity: 1; }
+  }
 
-    .time-form {
-      margin-top: 20px;
-      display: none;
-    }
+  .time-form {
+   margin-top: 20px;
+   display: none;
+  }
 
-    /* Стили для каждой записи времени */
-    .time-entry {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 5px;
-    }
+  /* Стили для каждой записи времени */
+  .time-entry {
+   display: flex;
+   flex-direction: column;
+   margin-bottom: 20px;
+   border: 1px solid #ddd;
+   padding: 10px;
+   border-radius: 5px;
+  }
 
-    .time-entry .time-input,
-    .time-entry .type-select,
-    .time-entry .template-select,
-    .time-entry .text-input,
-    .time-entry .image-url-input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
+  .time-entry .time-input,
+  .time-entry .type-select,
+  .time-entry .template-select,
+  .time-entry .text-input,
+  .time-entry .image-url-input {
+   width: 100%;
+   padding: 8px;
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   font-size: 1rem;
+   margin-bottom: 8px;
+  }
 
-    /* Поля выбора типа и шаблона размещаем в одну строку */
-    .select-row {
-      display: flex;
-      gap: 10px;
-    }
+  /* Поля выбора типа и шаблона размещаем в одну строку */
+  .select-row {
+   display: flex;
+   gap: 10px;
+  }
 
-    .select-row .type-select,
-    .select-row .template-select {
-      flex: 1;
-    }
+  .select-row .type-select,
+  .select-row .template-select {
+   flex: 1;
+  }
 
-    .time-entry .text-input,
-    .time-entry .image-url-input {
-      height: 120px;
-      resize: vertical;
-    }
+  .time-entry .text-input,
+  .time-entry .image-url-input {
+   height: 120px;
+   resize: vertical;
+  }
 
-    .time-input.invalid {
-      border-color: red;
-    }
+  .time-input.invalid {
+   border-color: red;
+  }
 
-    .selected-day {
-      background-color: lightgreen;
-    }
+  .selected-day {
+   background-color: lightgreen;
+  }
 
-    .past-day {
-      background-color: #ddd;
-      cursor: default;
-    }
+  .past-day {
+   background-color: #ddd;
+   cursor: default;
+  }
 
-    .content-count {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      font-size: 12px;
-      color: green;
-    }
+  .content-count {
+   position: absolute;
+   bottom: 5px;
+   right: 5px;
+   font-size: 12px;
+   color: green;
+  }
 
-    /* Стили для строки с временем, чекбоксом и кнопкой */
-    .time-checkbox-delete-row {
-      display: flex;
-      align-items: center; /* Вертикальное выравнивание */
-      gap: 10px;
-    }
+  /* Стили для строки с временем, чекбоксом и кнопкой */
+  .time-checkbox-delete-row {
+   display: flex;
+   align-items: center; /* Вертикальное выравнивание */
+   justify-content: flex-start; /* Выравнивание по левому краю */
+  }
 
-    .time-checkbox-delete-row .time-input {
-      flex: 1; /* Поле ввода времени занимает доступное пространство */
-      margin-right: 0; /* Убираем margin справа */
-    }
+  .time-input-wrapper { /* Новая обёртка для поля ввода и чекбокса */
+   display: flex;
+   align-items: center; /* Вертикальное выравнивание */
+  }
 
-    .delete-button {
-      background-color: #dc3545;
-      border: none;
-      color: white;
-      padding: 8px 16px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap; /* Предотвращаем перенос текста кнопки */
-    }
+  .time-checkbox-delete-row .time-input {
+   width: 80px; 
+   text-align: center; /* Центрируем текст в поле времени */
+   margin-right: 10px; /* Отступ справа от поля ввода */
+  }
 
-    .delete-button:hover {
-      background-color: #c82333;
-    }
+  .checkbox-container {
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start; /* Выравниваем чекбокс и лейбл по левому краю */
+  }
 
-    /* Дополнительные стили для мобильных устройств */
-    @media (max-width: 768px) {
-      .calendar-container {
-        margin-bottom: 10px;
-      }
+  .delete-button {
+   background-color: #dc3545;
+   border: none;
+   color: white;
+   padding: 8px 16px;
+   text-align: center;
+   text-decoration: none;
+   display: inline-block;
+   font-size: 16px;
+   border-radius: 4px;
+   cursor: pointer;
+   white-space: nowrap;
+   margin-left: auto; /* Автоматический отступ слева для прижатия к правому краю */
+  }
 
-      .calendar-table td, .calendar-table th {
-        padding: 8px;
-        font-size: 1rem;
-      }
+  .delete-button:hover {
+   background-color: #c82333;
+  }
 
-      .time-entry {
-        margin-bottom: 10px;
-      }
+  /* Дополнительные стили для мобильных устройств */
+  @media (max-width: 768px) {
+   .calendar-container {
+    margin-bottom: 10px;
+   }
 
-      /* На мобильных устройствах select размещаем друг под другом */
-      .select-row {
-        flex-direction: column;
-        gap: 8px;
-      }
+   .calendar-table td, .calendar-table th {
+    padding: 8px;
+    font-size: 1rem;
+   }
 
-      .select-row .type-select,
-      .select-row .template-select {
-        flex: 1;
-        width: 100%;
-      }
-      /* На мобильных устройствах переносим кнопку удалить на новую строку */
-      .time-checkbox-delete-row {
-        flex-direction: column;
-        align-items: flex-start; /* Выравнивание по левому краю */
-      }
-      .time-checkbox-delete-row .time-input {
-        margin-bottom: 8px;
-      }
-    }
-  </style>
+   .time-entry {
+    margin-bottom: 10px;
+   }
+
+   .select-row {
+    flex-direction: column;
+    gap: 8px;
+   }
+
+   .select-row .type-select,
+   .select-row .template-select {
+    flex: 1;
+    width: 100%;
+   }
+
+   .time-checkbox-delete-row {
+    flex-direction: column;
+    align-items: flex-start;
+   }
+
+   .time-checkbox-delete-row .time-input {
+    margin-bottom: 8px;
+   }
+  }
+ </style>
 </head>
 <body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12">
-        <h2 class="text-center">Контент-план</h2>
-        <div id="calendar" class="text-center"></div>
-        <button id="nextMonthBtn" class="btn btn-primary">Следующий месяц</button>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-12">
-        <div class="time-form" id="timeForm">
-          <h3>Выберите время и введите текст:</h3>
-          <div id="timeEntries"></div>
-          <button id="add-entry-button" class="btn btn-primary">Добавить запись</button>
-          <button id="save-button" class="btn btn-primary">Сохранить</button>
-        </div>
-      </div>
-    </div>
+ <div class="container-fluid">
+  <div class="row">
+   <div class="col-12">
+    <h2 class="text-center">Контент-план</h2>
+    <div id="calendar" class="text-center"></div>
+    <button id="nextMonthBtn" class="btn btn-primary">Следующий месяц</button>
+   </div>
   </div>
+  <div class="row">
+   <div class="col-12">
+    <div class="time-form" id="timeForm">
+     <h3>Выберите время и введите текст:</h3>
+     <div id="timeEntries"></div>
+     <button id="add-entry-button" class="btn btn-primary">Добавить запись</button>
+     <button id="save-button" class="btn btn-primary">Сохранить</button>
+    </div>
+   </div>
+  </div>
+ </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ <script src="https://telegram.org/js/telegram-web-app.js"></script>
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-  <script>
-    let tg = window.Telegram.WebApp;
-    tg.expand();
+ <script>
+  let tg = window.Telegram.WebApp;
+  tg.expand();
 
-    const calendarContainer = document.getElementById("calendar");
-    const nextMonthBtn = document.getElementById("nextMonthBtn");
-    const timeForm = document.getElementById('timeForm');
-    const saveButton = document.getElementById('save-button');
-    const addEntryButton = document.getElementById('add-entry-button');
-    const timeEntriesContainer = document.getElementById('timeEntries');
+  const calendarContainer = document.getElementById("calendar");
+  const nextMonthBtn = document.getElementById("nextMonthBtn");
+  const timeForm = document.getElementById('timeForm');
+  const saveButton = document.getElementById('save-button');
+  const addEntryButton = document.getElementById('add-entry-button');
+  const timeEntriesContainer = document.getElementById('timeEntries');
 
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
-    let selectedDate = null;
-    let userTemplates = [];
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+  let selectedDate = null;
+  let userTemplates = [];
 
-    // Получаем user_id из Telegram API
-    // const userId = tg.initDataUnsafe.user.id; 
-    const userId = 1;
+  // Получаем user_id из Telegram API
+  // const userId = tg.initDataUnsafe.user.id; 
+  const userId = 1;
 
-    calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 
-    nextMonthBtn.addEventListener("click", () => {
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
-      calendarContainer.innerHTML = '';
-      calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+  nextMonthBtn.addEventListener("click", () => {
+   currentMonth++;
+   if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+   }
+   calendarContainer.innerHTML = '';
+   calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+  });
+
+  // Функция для получения шаблонов пользователя
+  function fetchUserTemplates() {
+   return fetch(`http://localhost:8082/user-templates?userId=${userId}`)
+    .then(response => {
+     if (!response.ok) {
+      throw new Error('Ошибка при получении шаблонов пользователя');
+     }
+     return response.json();
+    })
+    .then(templates => {
+     userTemplates = templates;
+    })
+    .catch(error => {
+     console.error("Ошибка при получении шаблонов пользователя:", error);
     });
+  }
 
-    // Функция для получения шаблонов пользователя
-    function fetchUserTemplates() {
-      return fetch(`http://localhost:8082/user-templates?userId=${userId}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Ошибка при получении шаблонов пользователя');
-          }
-          return response.json();
-        })
-        .then(templates => {
-          userTemplates = templates;
-        })
-        .catch(error => {
-          console.error("Ошибка при получении шаблонов пользователя:", error);
-        });
-    }
+  // Вызываем функцию для получения шаблонов при загрузке страницы
+  fetchUserTemplates();
 
-    // Вызываем функцию для получения шаблонов при загрузке страницы
-    fetchUserTemplates();
+  function generateCalendar(month, year) {
+   const monthNames = [
+    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+   ];
 
-    function generateCalendar(month, year) {
-      const monthNames = [
-        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-      ];
+   const calendarTable = document.createElement("table");
+   calendarTable.classList.add("calendar-table", "fade-in", "table", "table-bordered");
 
-      const calendarTable = document.createElement("table");
-      calendarTable.classList.add("calendar-table", "fade-in", "table", "table-bordered");
+   const headerRow = calendarTable.insertRow();
+   const headerCell = headerRow.insertCell();
+   headerCell.colSpan = 7;
+   headerCell.innerHTML = monthNames[month] + " " + year;
 
-      const headerRow = calendarTable.insertRow();
-      const headerCell = headerRow.insertCell();
-      headerCell.colSpan = 7;
-      headerCell.innerHTML = monthNames[month] + " " + year;
+   const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+   const daysRow = calendarTable.insertRow();
+   daysOfWeek.forEach(day => {
+    const dayCell = daysRow.insertCell();
+    dayCell.innerHTML = day;
+   });
 
-      const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-      const daysRow = calendarTable.insertRow();
-      daysOfWeek.forEach(day => {
-        const dayCell = daysRow.insertCell();
-        dayCell.innerHTML = day;
-      });
+   let firstDay = (new Date(year, month)).getDay() - 1;
+   if (firstDay === -1) {
+    firstDay = 6;
+   }
 
-      let firstDay = (new Date(year, month)).getDay() - 1;
-      if (firstDay === -1) {
-        firstDay = 6;
-      }
+   const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
-      const daysInMonth = 32 - new Date(year, month, 32).getDate();
+   const today = new Date();
+   const currentDay = today.getDate();
+   const currentMonthNumber = today.getMonth();
 
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonthNumber = today.getMonth();
+   let date = 1;
+   let contentData = null;
 
-      let date = 1;
-      let contentData = null;
+   fetchContentCount(month, year)
+    .then(data => {
+     contentData = data;
 
-      fetchContentCount(month, year)
-        .then(data => {
-          contentData = data;
+     for (let i = 0; i < 6; i++) {
+      const row = calendarTable.insertRow();
+      for (let j = 0; j < 7; j++) {
+       const cell = row.insertCell();
 
-          for (let i = 0; i < 6; i++) {
-            const row = calendarTable.insertRow();
-            for (let j = 0; j < 7; j++) {
-              const cell = row.insertCell();
+       if (i === 0 && j < firstDay) {
+        cell.innerHTML = "";
+       } else if (date > daysInMonth) {
+        break;
+       } else {
+        const fullDate = new Date(year, month, date);
+        cell.dataset.date = `${year}-${month + 1}-${date}`;
+        cell.innerHTML = date;
+        cell.addEventListener('click', showTimeSelector);
 
-              if (i === 0 && j < firstDay) {
-                cell.innerHTML = "";
-              } else if (date > daysInMonth) {
-                break;
-              } else {
-                const fullDate = new Date(year, month, date);
-                cell.dataset.date = `${year}-${month + 1}-${date}`;
-                cell.innerHTML = date;
-                cell.addEventListener('click', showTimeSelector);
-
-                if (fullDate < today) {
-                  cell.classList.add("past-day");
-                  cell.removeEventListener('click', showTimeSelector);
-                }
-
-                if (date === currentDay && month === currentMonthNumber && year === today.getFullYear()) {
-                  cell.classList.remove("past-day");
-                  cell.addEventListener('click', showTimeSelector);
-                }
-
-                if (contentData) {
-                  const contentForDate = contentData.find(item => item.date === cell.dataset.date);
-                  if (contentForDate) {
-                    const contentCount = document.createElement('span');
-                    contentCount.classList.add('content-count');
-                    contentCount.textContent = contentForDate.count;
-                    cell.appendChild(contentCount);
-                  }
-                }
-
-                date++;
-              }
-            }
-          }
-        })
-        .catch(error => {
-          console.error("Ошибка при получении количества заполненных шаблонов:", error);
-        });
-
-      return calendarTable;
-    }
-
-    function showTimeSelector(event) {
-      event.preventDefault();
-      const clickedDate = event.target.dataset.date;
-      selectedDate = new Date(clickedDate);
-
-      const selectedDays = document.querySelectorAll('.selected-day');
-      selectedDays.forEach(day => day.classList.remove('selected-day'));
-
-      event.target.classList.add('selected-day');
-
-      console.log("Выбранная дата:", selectedDate);
-
-      timeForm.style.display = "block";
-      timeEntriesContainer.innerHTML = ''; 
-
-      fetch(`http://localhost:8082/content?date=${selectedDate.toISOString().split('T')[0]}`)
-        .then(response => response.json())
-        .then(data => {
-          data.forEach((entry, index) => {
-            console.log(entry);
-            addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl);
-          });
-        })
-        .catch(error => {
-          console.error("Ошибка при получении данных:", error);
-        });
-    }
-
-    function fetchContentCount(month, year) {
-      const firstDayOfMonth = new Date(year, month, 1);
-      const lastDayOfMonth = new Date(year, month + 1, 0);
-      const firstMonthValue = firstDayOfMonth.toISOString().split('T')[0];
-      const lastMonthValue = lastDayOfMonth.toISOString().split('T')[0];
-
-      return fetch(`http://localhost:8082/content-count?date=${firstMonthValue}&endDate=${lastMonthValue}`)
-        .then(response => response.json())
-        .catch(error => {
-          console.error("Ошибка при получении количества заполненных шаблонов:", error);
-          throw error;
-        });
-    }
-
-    function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '') {
-      const timeEntryDiv = document.createElement('div');
-      timeEntryDiv.classList.add('time-entry');
-
-      // Строка для времени, чекбокса и кнопки
-      const timeCheckboxDeleteRow = document.createElement('div');
-      timeCheckboxDeleteRow.classList.add('time-checkbox-delete-row');
-
-      const timeInput = document.createElement('input');
-      timeInput.classList.add('time-input');
-      timeInput.type = 'text';
-      timeInput.placeholder = 'HH:mm';
-      timeInput.addEventListener('input', validateTimeInput);
-      timeInput.addEventListener('input', addColon);
-
-      const generateImageCheckbox = document.createElement('input');
-      generateImageCheckbox.type = 'checkbox';
-      generateImageCheckbox.id = `generateImage-${id || Math.random().toString(36).substring(2)}`;
-
-      const generateImageLabel = document.createElement('label');
-      generateImageLabel.htmlFor = generateImageCheckbox.id;
-      generateImageLabel.textContent = 'Сгенерировать изображение';
-
-      const deleteButton = document.createElement('button');
-      deleteButton.classList.add('delete-button');
-      deleteButton.textContent = 'Удалить запись';
-      deleteButton.addEventListener('click', () => {
-        timeEntryDiv.remove();
-      });
-
-      // Добавляем элементы в строку
-      timeCheckboxDeleteRow.appendChild(timeInput);
-
-      const textInput = document.createElement('textarea');
-      textInput.classList.add('text-input');
-      textInput.placeholder = 'Введите текст';
-      textInput.value = text;
-
-      const imageUrlInput = document.createElement('textarea');
-      imageUrlInput.classList.add('image-url-input');
-      imageUrlInput.placeholder = 'URL изображения';
-      imageUrlInput.value = imageUrl;
-
-      if (id) {
-        timeCheckboxDeleteRow.appendChild(deleteButton);
-        
-        timeEntryDiv.dataset.id = id;
-        timeInput.value = time;
-
-        timeEntryDiv.appendChild(timeCheckboxDeleteRow);
-        timeEntryDiv.appendChild(imageUrlInput);
-        timeEntryDiv.appendChild(textInput);
-      } else {
-        const selectRow = document.createElement('div');
-        selectRow.classList.add('select-row');
-
-        const typeSelect = document.createElement('select');
-        typeSelect.classList.add('type-select');
-        typeSelect.innerHTML = `
-          <option value="Уточнить детали" ${type === 'Уточнить детали' ? 'selected' : ''}>Уточнить детали</option>
-          <option value="Отредактировать готовый пост" ${type === 'Отредактировать готовый пост' ? 'selected' : ''}>Отредактировать готовый пост</option>
-          <option value="Сгенерировать пост без деталей" ${type === 'Сгенерировать пост без деталей' ? 'selected' : ''}>Сгенерировать пост без деталей</option>
-        `;
-
-        const templateSelect = document.createElement('select');
-        templateSelect.classList.add('template-select');
-
-        let templateOptions = '<option value="">Выберите шаблон</option>';
-        userTemplates.forEach(template => {
-          templateOptions += `<option value="${template.id}" ${template.id === templateId ? 'selected' : ''}>${template.shortName}</option>`;
-        });
-        templateSelect.innerHTML = templateOptions;
-
-        timeCheckboxDeleteRow.appendChild(generateImageCheckbox);
-        timeCheckboxDeleteRow.appendChild(generateImageLabel);
-        timeCheckboxDeleteRow.appendChild(deleteButton);
-
-        selectRow.appendChild(typeSelect);
-        selectRow.appendChild(templateSelect);
-
-        timeEntryDiv.appendChild(timeCheckboxDeleteRow); 
-        timeEntryDiv.appendChild(selectRow);
-        timeEntryDiv.appendChild(textInput);
-      }
-
-      timeEntriesContainer.appendChild(timeEntryDiv);
-    }
-
-    function validateTimeInput(event) {
-      const input = event.target;
-      const timeRegex = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
-
-      if (timeRegex.test(input.value)) {
-        input.classList.remove('invalid');
-      } else {
-        input.classList.add('invalid');
-      }
-    }
-
-    function addColon(event) {
-      const input = event.target;
-      if (input.value.length === 2) {
-        input.value += ':';
-      }
-    }
-
-    addEntryButton.addEventListener('click', addTimeEntry);
-
-    saveButton.addEventListener('click', () => {
-      const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
-      const data = [];
-
-      timeEntries.forEach(entry => {
-        const timeInput = entry.querySelector('.time-input');
-        const typeSelect = entry.querySelector('.type-select');
-        const templateSelect = entry.querySelector('.template-select');
-        const textInput = entry.querySelector('.text-input');
-        const imageUrlInput = entry.querySelector('.image-url-input');
-        const generateImageCheckbox = entry.querySelector('input[type="checkbox"]');
-
-        const [hours, minutes] = timeInput.value.split(':');
-        const entryData = {
-          id: entry.dataset.id ? entry.dataset.id : null,
-          imageUrl: imageUrlInput ? imageUrlInput.value : null,
-          date: selectedDate.toISOString().split('T')[0],
-          time: `${hours}:${minutes}`,
-          text: textInput.value,
-          type: typeSelect ? typeSelect.value : null,
-          templateId: templateSelect ? templateSelect.value : null,
-          generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
-        };
-
-        data.push(entryData);
-      });
-
-      console.log('Данные для сохранения:', data);
-
-      fetch(`http://localhost:8082/content`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Ошибка при отправке данных на сервер');
+        if (fullDate < today) {
+         cell.classList.add("past-day");
+         cell.removeEventListener('click', showTimeSelector);
         }
-        console.log('Данные успешно отправлены на сервер');
-        return response.json();
-      })
-      .then(data => {
-        console.log('Ответ от сервера:', data);
-      })
-      .catch(error => {
-        console.error('Произошла ошибка:', error);
-      });
 
-      timeForm.style.display = "none";
-      const selectedDays = document.querySelectorAll('.selected-day');
-      selectedDays.forEach(day => day.classList.remove('selected-day'));
+        if (date === currentDay && month === currentMonthNumber && year === today.getFullYear()) {
+         cell.classList.remove("past-day");
+         cell.addEventListener('click', showTimeSelector);
+        }
+
+        if (contentData) {
+         const contentForDate = contentData.find(item => item.date === cell.dataset.date);
+         if (contentForDate) {
+          const contentCount = document.createElement('span');
+          contentCount.classList.add('content-count');
+          contentCount.textContent = contentForDate.count;
+          cell.appendChild(contentCount);
+         }
+        }
+
+        date++;
+       }
+      }
+     }
+    })
+    .catch(error => {
+     console.error("Ошибка при получении количества заполненных шаблонов:", error);
     });
-  </script>
+
+   return calendarTable;
+  }
+
+  function showTimeSelector(event) {
+   event.preventDefault();
+   const clickedDate = event.target.dataset.date;
+   selectedDate = new Date(clickedDate);
+
+   const selectedDays = document.querySelectorAll('.selected-day');
+   selectedDays.forEach(day => day.classList.remove('selected-day'));
+
+   event.target.classList.add('selected-day');
+
+   console.log("Выбранная дата:", selectedDate);
+
+   timeForm.style.display = "block";
+   timeEntriesContainer.innerHTML = ''; 
+
+   fetch(`http://localhost:8082/content?date=${selectedDate.toISOString().split('T')[0]}`)
+    .then(response => response.json())
+    .then(data => {
+     data.forEach((entry, index) => {
+      console.log(entry);
+      addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl);
+     });
+    })
+    .catch(error => {
+     console.error("Ошибка при получении данных:", error);
+    });
+  }
+
+  function fetchContentCount(month, year) {
+   const firstDayOfMonth = new Date(year, month, 1);
+   const lastDayOfMonth = new Date(year, month + 1, 0);
+   const firstMonthValue = firstDayOfMonth.toISOString().split('T')[0];
+   const lastMonthValue = lastDayOfMonth.toISOString().split('T')[0];
+
+   return fetch(`http://localhost:8082/content-count?date=${firstMonthValue}&endDate=${lastMonthValue}`)
+    .then(response => response.json())
+    .catch(error => {
+     console.error("Ошибка при получении количества заполненных шаблонов:", error);
+     throw error;
+    });
+  }
+
+  function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '') {
+   const timeEntryDiv = document.createElement('div');
+   timeEntryDiv.classList.add('time-entry');
+
+   // Строка для времени, чекбокса и кнопки
+   const timeCheckboxDeleteRow = document.createElement('div');
+   timeCheckboxDeleteRow.classList.add('time-checkbox-delete-row');
+
+   const timeInput = document.createElement('input');
+   timeInput.classList.add('time-input');
+   timeInput.type = 'text';
+   timeInput.placeholder = 'HH:mm';
+   timeInput.addEventListener('input', validateTimeInput);
+   timeInput.addEventListener('input', addColon);
+
+   // Контейнер для чекбокса и лейбла
+   const checkboxContainer = document.createElement('div');
+   checkboxContainer.classList.add('checkbox-container');
+
+   const generateImageCheckbox = document.createElement('input');
+   generateImageCheckbox.type = 'checkbox';
+   generateImageCheckbox.id = `generateImage-${id || Math.random().toString(36).substring(2)}`;
+
+   const generateImageLabel = document.createElement('label');
+   generateImageLabel.htmlFor = generateImageCheckbox.id;
+   generateImageLabel.textContent = 'Сгенерировать изображение';
+
+   // Добавляем чекбокс и лейбл в контейнер
+   checkboxContainer.appendChild(generateImageCheckbox);
+   checkboxContainer.appendChild(generateImageLabel);
+
+   const deleteButton = document.createElement('button');
+   deleteButton.classList.add('delete-button');
+   deleteButton.textContent = 'Удалить запись';
+   deleteButton.addEventListener('click', () => {
+    timeEntryDiv.remove();
+   });
+
+   // Добавляем элементы в строку
+   const timeInputWrapper = document.createElement('div'); // Создаём обёртку
+   timeInputWrapper.classList.add('time-input-wrapper');
+   timeInputWrapper.appendChild(timeInput);
+   timeInputWrapper.appendChild(checkboxContainer);  // Добавляем чекбокс в обёртку
+
+   timeCheckboxDeleteRow.appendChild(timeInputWrapper); // Добавляем обёртку в строку
+
+   // Добавляем элементы в строку
+   timeCheckboxDeleteRow.appendChild(timeInput);
+   timeCheckboxDeleteRow.appendChild(checkboxContainer); // Добавляем контейнер с чекбоксом
+
+   const textInput = document.createElement('textarea');
+   textInput.classList.add('text-input');
+   textInput.placeholder = 'Введите текст';
+   textInput.value = text;
+
+   const imageUrlInput = document.createElement('textarea');
+   imageUrlInput.classList.add('image-url-input');
+   imageUrlInput.placeholder = 'URL изображения';
+   imageUrlInput.value = imageUrl;
+
+   if (id) {
+    timeCheckboxDeleteRow.appendChild(deleteButton); 
+    
+    timeEntryDiv.dataset.id = id;
+    timeInput.value = time;
+
+    timeEntryDiv.appendChild(timeCheckboxDeleteRow);
+    timeEntryDiv.appendChild(imageUrlInput);
+    timeEntryDiv.appendChild(textInput);
+   } else {
+    const selectRow = document.createElement('div');
+    selectRow.classList.add('select-row');
+
+    const typeSelect = document.createElement('select');
+    typeSelect.classList.add('type-select');
+    typeSelect.innerHTML = `
+     <option value="Уточнить детали" ${type === 'Уточнить детали' ? 'selected' : ''}>Уточнить детали</option>
+     <option value="Отредактировать готовый пост" ${type === 'Отредактировать готовый пост' ? 'selected' : ''}>Отредактировать готовый пост</option>
+     <option value="Сгенерировать пост без деталей" ${type === 'Сгенерировать пост без деталей' ? 'selected' : ''}>Сгенерировать пост без деталей</option>
+    `;
+
+    const templateSelect = document.createElement('select');
+    templateSelect.classList.add('template-select');
+
+    let templateOptions = '<option value="">Выберите шаблон</option>';
+    userTemplates.forEach(template => {
+     templateOptions += `<option value="${template.id}" ${template.id === templateId ? 'selected' : ''}>${template.shortName}</option>`;
+    });
+    templateSelect.innerHTML = templateOptions;
+
+    timeCheckboxDeleteRow.appendChild(deleteButton);
+
+    selectRow.appendChild(typeSelect);
+    selectRow.appendChild(templateSelect);
+
+    timeEntryDiv.appendChild(timeCheckboxDeleteRow); 
+    timeEntryDiv.appendChild(selectRow);
+    timeEntryDiv.appendChild(textInput);
+   }
+
+   timeEntriesContainer.appendChild(timeEntryDiv);
+  }
+
+  function validateTimeInput(event) {
+   const input = event.target;
+   const timeRegex = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+
+   if (timeRegex.test(input.value)) {
+    input.classList.remove('invalid');
+   } else {
+    input.classList.add('invalid');
+   }
+  }
+
+  function addColon(event) {
+   const input = event.target;
+   if (input.value.length === 2) {
+    input.value += ':';
+   }
+  }
+
+  addEntryButton.addEventListener('click', addTimeEntry);
+
+  saveButton.addEventListener('click', () => {
+   const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
+   const data = [];
+
+   timeEntries.forEach(entry => {
+    const timeInput = entry.querySelector('.time-input');
+    const typeSelect = entry.querySelector('.type-select');
+    const templateSelect = entry.querySelector('.template-select');
+    const textInput = entry.querySelector('.text-input');
+    const imageUrlInput = entry.querySelector('.image-url-input');
+    const generateImageCheckbox = entry.querySelector('input[type="checkbox"]');
+
+    const [hours, minutes] = timeInput.value.split(':');
+    const entryData = {
+     id: entry.dataset.id ? entry.dataset.id : null,
+     imageUrl: imageUrlInput ? imageUrlInput.value : null,
+     date: selectedDate.toISOString().split('T')[0],
+     time: `${hours}:${minutes}`,
+     text: textInput.value,
+     type: typeSelect ? typeSelect.value : null,
+     templateId: templateSelect ? templateSelect.value : null,
+     generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
+    };
+
+    data.push(entryData);
+   });
+
+   console.log('Данные для сохранения:', data);
+
+   fetch(`http://localhost:8082/content`, {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+   })
+   .then(response => {
+    if (!response.ok) {
+     throw new Error('Ошибка при отправке данных на сервер');
+    }
+    console.log('Данные успешно отправлены на сервер');
+    return response.json();
+   })
+   .then(data => {
+    console.log('Ответ от сервера:', data);
+   })
+   .catch(error => {
+    console.error('Произошла ошибка:', error);
+   });
+
+   timeForm.style.display = "none";
+   const selectedDays = document.querySelectorAll('.selected-day');
+   selectedDays.forEach(day => day.classList.remove('selected-day'));
+  });
+ </script>
 </body>
 </html>
