@@ -435,14 +435,6 @@
    // Добавляем элементы в строку
    const timeInputWrapper = document.createElement('div'); // Создаём обёртку
    timeInputWrapper.classList.add('time-input-wrapper');
-   timeInputWrapper.appendChild(timeInput);
-   timeInputWrapper.appendChild(checkboxContainer);  // Добавляем чекбокс в обёртку
-
-   timeCheckboxDeleteRow.appendChild(timeInputWrapper); // Добавляем обёртку в строку
-
-   // Добавляем элементы в строку
-   timeCheckboxDeleteRow.appendChild(timeInput);
-   timeCheckboxDeleteRow.appendChild(checkboxContainer); // Добавляем контейнер с чекбоксом
 
    const textInput = document.createElement('textarea');
    textInput.classList.add('text-input');
@@ -455,6 +447,7 @@
    imageUrlInput.value = imageUrl;
 
    if (id) {
+    timeCheckboxDeleteRow.appendChild(timeInput);
     timeCheckboxDeleteRow.appendChild(deleteButton); 
     
     timeEntryDiv.dataset.id = id;
@@ -484,6 +477,8 @@
     });
     templateSelect.innerHTML = templateOptions;
 
+    timeCheckboxDeleteRow.appendChild(timeInput);
+    timeCheckboxDeleteRow.appendChild(checkboxContainer);
     timeCheckboxDeleteRow.appendChild(deleteButton);
 
     selectRow.appendChild(typeSelect);
@@ -493,6 +488,7 @@
     timeEntryDiv.appendChild(selectRow);
     timeEntryDiv.appendChild(textInput);
    }
+   timeCheckboxDeleteRow.appendChild(timeInputWrapper); // Добавляем обёртку в строку
 
    timeEntriesContainer.appendChild(timeEntryDiv);
   }
