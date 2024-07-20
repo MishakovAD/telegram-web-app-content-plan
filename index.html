@@ -147,6 +147,26 @@
       background-color: #c82333;
     }
 
+    .generate-post-button {
+      background-color: #008000;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-left: auto; 
+      align-self: flex-start; 
+    }
+
+    .generate-post-button:hover {
+      background-color: #008000;
+    }
+
     /* Дополнительные стили для мобильных устройств */
     @media (max-width: 768px) {
       .calendar-table {
@@ -182,6 +202,12 @@
       }
 
       .delete-button {
+        margin-left: 0; /* Убираем автоматический отступ слева */
+        margin-top: 8px; /* Добавляем отступ сверху */
+        width: 100%; /* Растягиваем кнопку на всю ширину */
+      }
+
+      .generate-post-button {
         margin-left: 0; /* Убираем автоматический отступ слева */
         margin-top: 8px; /* Добавляем отступ сверху */
         width: 100%; /* Растягиваем кнопку на всю ширину */
@@ -433,6 +459,13 @@
     timeEntryDiv.remove();
    });
 
+   const generatePostButton = document.createElement('button');
+   generatePostButton.classList.add('generate-post-button');
+   generatePostButton.textContent = 'Сгенерировать пост';
+   generatePostButton.addEventListener('click', () => {
+    timeEntryDiv.remove(); //вот тут отправляем запрос на сервер и обновляем поле, когда он выполнится.
+   });
+
    // Добавляем элементы в строку
    const timeInputWrapper = document.createElement('div'); // Создаём обёртку
    timeInputWrapper.classList.add('time-input-wrapper');
@@ -457,6 +490,7 @@
     timeEntryDiv.appendChild(timeCheckboxDeleteRow);
     timeEntryDiv.appendChild(imageUrlInput);
     timeEntryDiv.appendChild(textInput);
+    timeEntryDiv.appendChild(deleteButton);
    } else {
     const selectRow = document.createElement('div');
     selectRow.classList.add('select-row');
@@ -487,8 +521,8 @@
     timeEntryDiv.appendChild(timeCheckboxDeleteRow); 
     timeEntryDiv.appendChild(selectRow);
     timeEntryDiv.appendChild(textInput);
+    timeEntryDiv.appendChild(generatePostButton);
    }
-   timeEntryDiv.appendChild(deleteButton);
    timeCheckboxDeleteRow.appendChild(timeInputWrapper); // Добавляем обёртку в строку
 
    timeEntriesContainer.appendChild(timeEntryDiv);
