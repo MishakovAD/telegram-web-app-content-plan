@@ -347,7 +347,7 @@
     break;
     } else {
     const fullDate = new Date(year, month, date);
-    cell.dataset.date = `${year}-${month + 1}-${date}`;
+    cell.dataset.date = fullDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
     cell.innerHTML = date;
     cell.addEventListener('click', showTimeSelector);
 
@@ -362,6 +362,7 @@
     }
 
     if (contentData) {
+      console.log(cell.dataset.date);
      const contentForDate = contentData.find(item => item.date === cell.dataset.date);
      if (contentForDate) {
      const contentCount = document.createElement('span');
@@ -396,7 +397,7 @@
   timeForm.style.display = "block";
   timeEntriesContainer.innerHTML = ''; 
 
-  fetch(`http://localhost:8082/content?date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
+  fetch(`http://localhost:8082/content?userId=${userId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
   .then(response => response.json())
   .then(data => {
    data.forEach((entry, index) => {
@@ -413,9 +414,8 @@
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstMonthValue = firstDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
-  const lastMonthValue = lastDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
 
-  return fetch(`http://localhost:8082/content-count?date=${firstMonthValue}&endDate=${lastMonthValue}`)
+  return fetch(`http://localhost:8082/content-count?userId=${userId}&date=${firstMonthValue}`)
   .then(response => response.json())
   .catch(error => {
    console.error("Ошибка при получении количества заполненных шаблонов:", error);
@@ -459,7 +459,7 @@
   const channelSelect = document.createElement('select');
   channelSelect.classList.add('channel-select');
   if (channelsExists) {
-    let channelOptions = '<option value="">Выберите канал</option>';
+    let channelOptions = '<option value="">Отправит в чат с Channel Autopilot</option>';
     userChannels.forEach(channel => {
       channelOptions += `<option value="${channel.id}" ${channel.id === channelId ? 'selected' : ''}>${channel.channelName}</option>`;
     });
@@ -484,6 +484,7 @@
     const timeInput = timeEntryDiv.querySelector('.time-input');
     const typeSelect = timeEntryDiv.querySelector('.type-select');
     const templateSelect = timeEntryDiv.querySelector('.template-select');
+    const channelSelect = timeEntryDiv.querySelector('.channel-select');
     const textInput = timeEntryDiv.querySelector('.text-input');
     const generateImageCheckbox = timeEntryDiv.querySelector('input[type="checkbox"]');
 
@@ -494,6 +495,7 @@
      text: textInput.value,
      type: typeSelect ? typeSelect.value : null,
      templateId: templateSelect ? templateSelect.value : null,
+     channelId: channelSelect ? channelSelect.value : null,
      generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
     };
     console.log("Data for generate post: ", entryData);
@@ -644,7 +646,6 @@
   const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
   const data = [];
   const choosenDate = selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
-  console.log("choosenDate: ", choosenDate);
 
   timeEntries.forEach(entry => {
   const timeInput = entry.querySelector('.time-input');
