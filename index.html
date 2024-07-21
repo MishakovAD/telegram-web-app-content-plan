@@ -263,8 +263,8 @@
  let userChannels = []; // Массив для хранения каналов пользователя
 
  // Получаем user_id из Telegram API
- // const userId = tg.initDataUnsafe.user.id; 
- const userId = 1;
+ // const chatId = tg.initDataUnsafe.user.id; 
+ const chatId = 1;
 
  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 
@@ -280,7 +280,7 @@
 
  // Функция для получения шаблонов пользователя
  function fetchUserTemplates() {
-  return fetch(`http://${server}/user-templates?userId=${userId}`)
+  return fetch(`http://${server}/user-templates?chatId=${chatId}`)
   .then(response => {
    if (!response.ok) {
    throw new Error('Ошибка при получении шаблонов пользователя');
@@ -364,7 +364,6 @@
     }
 
     if (contentData) {
-      console.log(cell.dataset.date);
      const contentForDate = contentData.find(item => item.date === cell.dataset.date);
      if (contentForDate) {
      const contentCount = document.createElement('span');
@@ -399,7 +398,7 @@
   timeForm.style.display = "block";
   timeEntriesContainer.innerHTML = ''; 
 
-  fetch(`http://${server}/content?userId=${userId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
+  fetch(`http://${server}/content?chatId=${chatId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
   .then(response => response.json())
   .then(data => {
    data.forEach((entry, index) => {
@@ -417,7 +416,7 @@
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstMonthValue = firstDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
 
-  return fetch(`http://${server}/content-count?userId=${userId}&date=${firstMonthValue}`)
+  return fetch(`http://${server}/content-count?chatId=${chatId}&date=${firstMonthValue}`)
   .then(response => response.json())
   .catch(error => {
    console.error("Ошибка при получении количества заполненных шаблонов:", error);
@@ -623,7 +622,7 @@
  }
 
  function fetchUserChannels() {
-    return fetch(`http://${server}/user-channels?userId=${userId}`)
+    return fetch(`http://${server}/user-channels?chatId=${chatId}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Ошибка при получении каналов пользователя');
