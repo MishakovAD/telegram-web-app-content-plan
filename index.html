@@ -247,6 +247,8 @@
  let tg = window.Telegram.WebApp;
  tg.expand();
 
+ const server = 'localhost:8082';
+
  const calendarContainer = document.getElementById("calendar");
  const nextMonthBtn = document.getElementById("nextMonthBtn");
  const timeForm = document.getElementById('timeForm');
@@ -278,7 +280,7 @@
 
  // Функция для получения шаблонов пользователя
  function fetchUserTemplates() {
-  return fetch(`http://localhost:8082/user-templates?userId=${userId}`)
+  return fetch(`http://${server}/user-templates?userId=${userId}`)
   .then(response => {
    if (!response.ok) {
    throw new Error('Ошибка при получении шаблонов пользователя');
@@ -397,7 +399,7 @@
   timeForm.style.display = "block";
   timeEntriesContainer.innerHTML = ''; 
 
-  fetch(`http://localhost:8082/content?userId=${userId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
+  fetch(`http://${server}/content?userId=${userId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
   .then(response => response.json())
   .then(data => {
    data.forEach((entry, index) => {
@@ -415,7 +417,7 @@
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstMonthValue = firstDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
 
-  return fetch(`http://localhost:8082/content-count?userId=${userId}&date=${firstMonthValue}`)
+  return fetch(`http://${server}/content-count?userId=${userId}&date=${firstMonthValue}`)
   .then(response => response.json())
   .catch(error => {
    console.error("Ошибка при получении количества заполненных шаблонов:", error);
@@ -500,7 +502,7 @@
     };
     console.log("Data for generate post: ", entryData);
 
-    fetch(`http://localhost:8082/generate-post`, {
+    fetch(`http://${server}/generate-post`, {
      method: 'POST',
      headers: {
       'Content-Type': 'application/json'
@@ -621,7 +623,7 @@
  }
 
  function fetchUserChannels() {
-    return fetch(`http://localhost:8082/user-channels?userId=${userId}`)
+    return fetch(`http://${server}/user-channels?userId=${userId}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Ошибка при получении каналов пользователя');
@@ -672,7 +674,7 @@
 
   console.log('Данные для сохранения:', data);
 
-  fetch(`http://localhost:8082/update-content`, {
+  fetch(`http://${server}/update-content`, {
   method: 'PUT',
   headers: {
    'Content-Type': 'application/json'
