@@ -62,6 +62,7 @@
 
   .time-entry .time-input,
   .time-entry .type-select,
+  .select-row .channel-select,
   .time-entry .template-select,
   .time-entry .text-input,
   .time-entry .image-url-input {
@@ -187,6 +188,7 @@
    }
 
    .select-row .type-select,
+   .select-row .channel-select,
    .select-row .template-select {
     flex: 1;
     width: 100%;
@@ -255,7 +257,8 @@
  let currentMonth = new Date().getMonth();
  let currentYear = new Date().getFullYear();
  let selectedDate = null;
- let userTemplates = [];
+ let userTemplates = []; // Массив для хранения шаблонов пользователя
+ let userChannels = []; // Массив для хранения каналов пользователя
 
  // Получаем user_id из Telegram API
  // const userId = tg.initDataUnsafe.user.id; 
@@ -290,8 +293,9 @@
   });
  }
 
- // Вызываем функцию для получения шаблонов при загрузке страницы
+ // Вызываем функцию для получения шаблонов и каналов при загрузке страницы
  fetchUserTemplates();
+ fetchUserChannels();
 
  function generateCalendar(month, year) {
   const monthNames = [
@@ -373,7 +377,7 @@
    }
   })
   .catch(error => {
-   console.error("Ошибка при получении количества заполненных шаблонов:", error);
+   console.error("Ошибка при получении количества заполненных шаблонов при создании календаря:", error);
   });
 
   return calendarTable;
@@ -389,17 +393,14 @@
 
   event.target.classList.add('selected-day');
 
-  console.log("Выбранная дата:", selectedDate);
-
   timeForm.style.display = "block";
   timeEntriesContainer.innerHTML = ''; 
 
-  fetch(`http://localhost:8082/content?date=${selectedDate.toISOString().split('T')[0]}`)
+  fetch(`http://localhost:8082/content?date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
   .then(response => response.json())
   .then(data => {
    data.forEach((entry, index) => {
-   console.log(entry);
-   addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl);
+   addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl, entry.channelId);
    addEntryButton.disabled = false; //т.к. может быть такое, что в одном числе щелкнули добавить запись и не сгенерировали пост и ткнули в другое число.
    });
   })
@@ -411,8 +412,8 @@
  function fetchContentCount(month, year) {
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
-  const firstMonthValue = firstDayOfMonth.toISOString().split('T')[0];
-  const lastMonthValue = lastDayOfMonth.toISOString().split('T')[0];
+  const firstMonthValue = firstDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
+  const lastMonthValue = lastDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
 
   return fetch(`http://localhost:8082/content-count?date=${firstMonthValue}&endDate=${lastMonthValue}`)
   .then(response => response.json())
@@ -422,7 +423,7 @@
   });
  }
 
- function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '') {
+ function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '', channelId = null) {
   const timeEntryDiv = document.createElement('div');
   timeEntryDiv.classList.add('time-entry');
 
@@ -453,6 +454,18 @@
   checkboxContainer.appendChild(generateImageCheckbox);
   checkboxContainer.appendChild(generateImageLabel);
 
+  //User channels
+  channelsExists = userChannels.length > 0;
+  const channelSelect = document.createElement('select');
+  channelSelect.classList.add('channel-select');
+  if (channelsExists) {
+    let channelOptions = '<option value="">Выберите канал</option>';
+    userChannels.forEach(channel => {
+      channelOptions += `<option value="${channel.id}" ${channel.id === channelId ? 'selected' : ''}>${channel.channelName}</option>`;
+    });
+    channelSelect.innerHTML = channelOptions;
+  }
+
   const deleteButton = document.createElement('button');
   deleteButton.classList.add('delete-button');
   deleteButton.textContent = 'Удалить запись';
@@ -476,13 +489,14 @@
 
     const [hours, minutes] = timeInput.value.split(':');
     const entryData = {
-     date: selectedDate.toISOString().split('T')[0],
+     date: selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-'),
      time: `${hours}:${minutes}`,
      text: textInput.value,
      type: typeSelect ? typeSelect.value : null,
      templateId: templateSelect ? templateSelect.value : null,
      generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
     };
+    console.log("Data for generate post: ", entryData);
 
     fetch(`http://localhost:8082/generate-post`, {
      method: 'POST',
@@ -499,13 +513,10 @@
     })
     .then(createdContent => {
         timeEntryDiv.remove();
-        addTimeEntry(createdContent.time, createdContent.type, createdContent.text, createdContent.id, createdContent.templateId, createdContent.imageUrl);
+        addTimeEntry(createdContent.time, createdContent.type, createdContent.text, createdContent.id, createdContent.templateId, createdContent.imageUrl, createdContent.channelId);
         addEntryButton.disabled = false; //т.к. может быть такое, что в одном числе щелкнули добавить запись и не сгенерировали пост и ткнули в другое число.
 
-       // Обновляем счетчик на календаре
-       updateContentCount(selectedDate);
-
-       console.log('Пост успешно сгенерирован:', createdContent);
+       console.debug('Пост успешно сгенерирован:', createdContent);
     })
     .catch(error => {
       console.error('Произошла ошибка при генерации поста:', error);
@@ -539,6 +550,11 @@
   timeEntryDiv.dataset.id = id;
   timeInput.value = time;
 
+  if (channelId) {
+    channelSelect.value = channelId;
+    channelSelect.disabled = true;
+    timeCheckboxDeleteRow.appendChild(channelSelect);
+  }
   timeEntryDiv.appendChild(timeCheckboxDeleteRow);
   timeEntryDiv.appendChild(imageUrlInput);
   timeEntryDiv.appendChild(textInput);
@@ -570,6 +586,10 @@
   selectRow.appendChild(typeSelect);
   selectRow.appendChild(templateSelect);
 
+  if (channelsExists) {
+    selectRow.appendChild(channelSelect);
+  }
+
   timeEntryDiv.appendChild(timeCheckboxDeleteRow); 
   timeEntryDiv.appendChild(selectRow);
   timeEntryDiv.appendChild(textInput);
@@ -598,30 +618,21 @@
   }
  }
 
- // Функция для обновления счетчика на календаре
- function updateContentCount(date) {
-  const dateString = date.toISOString().split('T')[0];
-  const cell = document.querySelector(`.calendar-table td[data-date="${dateString}"]`);
-
-  // Получаем количество постов для указанной даты
-  fetchContentCount(date.getMonth(), date.getFullYear())
-   .then(data => {
-    const contentForDate = data.find(item => item.date === dateString);
-    const count = contentForDate ? contentForDate.count : 0;
-
-    // Находим существующий счетчик или создаем новый
-    let contentCount = cell.querySelector('.content-count');
-    if (!contentCount) {
-     contentCount = document.createElement('span');
-     contentCount.classList.add('content-count');
-     cell.appendChild(contentCount);
-    }
-    contentCount.textContent = count;
-   })
-   .catch(error => {
-    console.error("Ошибка при получении количества заполненных шаблонов:", error);
-   });
- }
+ function fetchUserChannels() {
+    return fetch(`http://localhost:8082/user-channels?userId=${userId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Ошибка при получении каналов пользователя');
+        }
+        return response.json();
+      })
+      .then(channels => {
+        userChannels = channels;
+      })
+      .catch(error => {
+        console.error("Ошибка при получении каналов пользователя:", error);
+      });
+  }
 
  addEntryButton.addEventListener('click', () => {
   addTimeEntry();
@@ -632,6 +643,8 @@
  saveButton.addEventListener('click', () => {
   const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
   const data = [];
+  const choosenDate = selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
+  console.log("choosenDate: ", choosenDate);
 
   timeEntries.forEach(entry => {
   const timeInput = entry.querySelector('.time-input');
@@ -645,7 +658,7 @@
   const entryData = {
    id: entry.dataset.id ? entry.dataset.id : null,
    imageUrl: imageUrlInput ? imageUrlInput.value : null,
-   date: selectedDate.toISOString().split('T')[0],
+   date: choosenDate,
    time: `${hours}:${minutes}`,
    text: textInput.value,
    type: typeSelect ? typeSelect.value : null,
@@ -658,8 +671,8 @@
 
   console.log('Данные для сохранения:', data);
 
-  fetch(`http://localhost:8082/content`, {
-  method: 'POST',
+  fetch(`http://localhost:8082/update-content`, {
+  method: 'PUT',
   headers: {
    'Content-Type': 'application/json'
   },
@@ -673,7 +686,7 @@
   return response.json();
   })
   .then(data => {
-  console.log('Ответ от сервера:', data);
+  console.debug('Ответ от сервера:', data);
   })
   .catch(error => {
   console.error('Произошла ошибка:', error);
@@ -682,6 +695,12 @@
   timeForm.style.display = "none";
   const selectedDays = document.querySelectorAll('.selected-day');
   selectedDays.forEach(day => day.classList.remove('selected-day'));
+
+  //обновление календаря, чтобы счетчики обновились.
+  const currDate = new Date(choosenDate);
+  const calendarContainer = document.getElementById("calendar");
+  calendarContainer.innerHTML = '';
+  calendarContainer.appendChild(generateCalendar(currDate.getMonth(), currDate.getFullYear()));
  });
  </script>
 </body>
