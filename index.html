@@ -247,8 +247,8 @@
  let tg = window.Telegram.WebApp;
  tg.expand();
 
- // const server = 'localhost:8082';
- const server = '95.140.159.63:8082';
+ const server = 'localhost:8082';
+ // const server = '95.140.159.63:8082';
 
  const calendarContainer = document.getElementById("calendar");
  const nextMonthBtn = document.getElementById("nextMonthBtn");
@@ -264,8 +264,8 @@
  let userChannels = []; // Массив для хранения каналов пользователя
 
  // Получаем user_id из Telegram API
- const chatId = tg.initDataUnsafe.user.id; 
- // const chatId = 376177801;
+ // const chatId = tg.initDataUnsafe.user.id; 
+ const chatId = 376177801;
 
  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 
