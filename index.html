@@ -461,7 +461,7 @@
   const channelSelect = document.createElement('select');
   channelSelect.classList.add('channel-select');
   if (channelsExists) {
-    let channelOptions = '<option value="">Отправит в чат с Channel Autopilot</option>';
+    let channelOptions = '<option value="">Отправить в чат с Channel Autopilot</option>';
     userChannels.forEach(channel => {
       channelOptions += `<option value="${channel.id}" ${channel.id === channelId ? 'selected' : ''}>${channel.channelName}</option>`;
     });
@@ -661,6 +661,7 @@
   const [hours, minutes] = timeInput.value.split(':');
   const entryData = {
    id: entry.dataset.id ? entry.dataset.id : null,
+   chatId: chatId,
    imageUrl: imageUrlInput ? imageUrlInput.value : null,
    date: choosenDate,
    time: `${hours}:${minutes}`,
