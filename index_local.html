@@ -571,9 +571,9 @@
   const typeSelect = document.createElement('select');
   typeSelect.classList.add('type-select');
   typeSelect.innerHTML = `
-   <option value="Уточнить детали" ${type === 'Уточнить детали' ? 'selected' : ''}>Уточнить детали</option>
-   <option value="Отредактировать готовый пост" ${type === 'Отредактировать готовый пост' ? 'selected' : ''}>Отредактировать готовый пост</option>
-   <option value="Сгенерировать пост без деталей" ${type === 'Сгенерировать пост без деталей' ? 'selected' : ''}>Сгенерировать пост без деталей</option>
+   <option value="NEED_ADDITIONAL_CONTEXT" ${type === 'NEED_ADDITIONAL_CONTEXT' ? 'selected' : ''}>Уточнить детали</option>
+   <option value="NEED_FORMATTING_POST" ${type === 'NEED_FORMATTING_POST' ? 'selected' : ''}>Отредактировать готовый пост</option>
+   <option value="NOT_NEED_ADDITIONAL_CONTEXT" ${type === 'NOT_NEED_ADDITIONAL_CONTEXT' ? 'selected' : ''}>Сгенерировать пост без деталей</option>
   `;
 
   const templateSelect = document.createElement('select');
