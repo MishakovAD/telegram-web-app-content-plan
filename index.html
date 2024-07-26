@@ -6,214 +6,275 @@
  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
  <style>
   .calendar-container {
-   margin-bottom: 20px;
+    margin-bottom: 20px;
   }
 
   .calendar-table {
-   width: 100%;
-   border-collapse: collapse;
-   font-size: 1.2rem;
-   table-layout: fixed; /* Фиксированная ширина столбцов */
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.2rem;
+    table-layout: fixed; /* Фиксированная ширина столбцов */
   }
 
   .calendar-table td, .calendar-table th {
-   border: 1px solid #ddd;
-   padding: 10px;
-   text-align: center;
-   position: relative;
-   cursor: pointer;
-   width: 14.28%; /* Равномерное распределение по ширине для 7 дней */
-   word-break: break-word; /* Разрешаем перенос слов */
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    width: 14.28%; /* Равномерное распределение по ширине для 7 дней */
+    word-break: break-word; /* Разрешаем перенос слов */
   }
 
   .calendar-table th {
-   background-color: #f2f2f2;
-   font-weight: bold;
+    background-color: #f2f2f2;
+    font-weight: bold;
   }
 
   .current-day {
-   background-color: #f0f0f0;
-   background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
+    background-color: #f0f0f0;
+    background-image: linear-gradient(to bottom right, #f0f0f0, #f0f0f0);
   }
 
   .fade-in {
-   animation: fadeIn 0.5s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
   }
 
   @keyframes fadeIn {
-   0% { opacity: 0; }
-   100% { opacity: 1; }
+    0% { opacity: 0; }
+    100% { opacity: 1; }
   }
 
   .time-form {
-   margin-top: 20px;
-   display: none;
+    margin-top: 20px;
+    display: none;
   }
 
   /* Стили для каждой записи времени */
   .time-entry {
-   display: flex;
-   flex-direction: column;
-   margin-bottom: 20px;
-   border: 1px solid #ddd;
-   padding: 10px;
-   border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
   }
 
   .time-entry .time-input,
   .time-entry .type-select,
   .select-row .channel-select,
   .time-entry .template-select,
-  .time-entry .text-input,
-  .time-entry .image-url-input {
-   width: 100%;
-   padding: 8px;
-   border: 1px solid #ddd;
-   border-radius: 4px;
-   font-size: 1rem;
-   margin-bottom: 8px;
-   box-sizing: border-box; /* Включаем отступы и границы в общую ширину */
+  .time-entry .text-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    box-sizing: border-box; /* Включаем отступы и границы в общую ширину */
   }
 
-  .time-entry .text-input,
-  .time-entry .image-url-input {
-   height: 120px;
-   resize: vertical;
+  .time-entry .text-input {
+    height: 120px;
+    resize: vertical;
   }
 
   .time-input.invalid {
-   border-color: red;
+    border-color: red;
   }
 
   .selected-day {
-   background-color: lightgreen;
+    background-color: lightgreen;
   }
 
   .past-day {
-   background-color: #ddd;
-   cursor: default;
+    background-color: #ddd;
+    cursor: default;
   }
 
   .content-count {
-   position: absolute;
-   bottom: 5px;
-   right: 5px;
-   font-size: 12px;
-   color: green;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 12px;
+    color: green;
   }
 
   /* Стили для строки с временем, чекбоксом и кнопкой */
   .time-checkbox-delete-row {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   flex-wrap: wrap; /* Разрешаем перенос элементов */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Разрешаем перенос элементов */
   }
 
   .time-input-wrapper {
-   display: flex;
-   align-items: center;
-   margin-bottom: 8px; /* Отступ снизу для мобильных */
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px; /* Отступ снизу для мобильных */
   }
 
   .time-checkbox-delete-row .time-input {
-   width: 80px;  
-   text-align: center; 
-   margin-right: 10px; 
+    width: 80px;
+    text-align: center;
+    margin-right: 10px;
   }
 
   .checkbox-container {
-   display: flex;
-   flex-direction: column;
-   align-items: flex-start; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .delete-button {
-   background-color: #dc3545;
-   border: none;
-   color: white;
-   padding: 8px 16px;
-   text-align: center;
-   text-decoration: none;
-   display: inline-block;
-   font-size: 16px;
-   border-radius: 4px;
-   cursor: pointer;
-   white-space: nowrap;
-   margin-left: auto; 
-   align-self: flex-start; 
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: auto;
+    align-self: flex-start;
   }
 
   .delete-button:hover {
-   background-color: #c82333;
+    background-color: #c82333;
   }
 
   .generate-post-button {
-   background-color: #008000;
-   border: none;
-   color: white;
-   padding: 8px 16px;
-   text-align: center;
-   text-decoration: none;
-   display: inline-block;
-   font-size: 16px;
-   border-radius: 4px;
-   cursor: pointer;
-   white-space: nowrap;
-   margin-left: auto; 
-   align-self: flex-start; 
+    background-color: #008000;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: auto;
+    align-self: flex-start;
   }
 
   .generate-post-button:hover {
-   background-color: #008000;
+    background-color: #008000;
+  }
+
+  .generate-post-button:disabled {
+    background-color: #ccc; /* Или любой другой серый цвет */
+  }
+
+  /* Стили для лоадера */
+  .loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    border-top-color: #008000;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 8px; /* Отступ слева от кнопки */
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   /* Дополнительные стили для мобильных устройств */
   @media (max-width: 768px) {
-   .calendar-table {
-    font-size: 1rem;
-   }
+    .calendar-table {
+      font-size: 1rem;
+    }
 
-   .calendar-table td, .calendar-table th {
-    padding: 8px;
-   }
+    .calendar-table td, .calendar-table th {
+      padding: 8px;
+    }
 
-   .time-entry {
-    margin-bottom: 10px;
-   }
+    .time-entry {
+      margin-bottom: 10px;
+    }
 
-   .select-row {
-    flex-direction: column;
-    gap: 8px;
-   }
+    .select-row {
+      flex-direction: column;
+      gap: 8px;
+    }
 
-   .select-row .type-select,
-   .select-row .channel-select,
-   .select-row .template-select {
-    flex: 1;
+    .select-row .type-select,
+    .select-row .channel-select,
+    .select-row .template-select {
+      flex: 1;
+      width: 100%;
+    }
+
+    .time-checkbox-delete-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .time-checkbox-delete-row .time-input {
+      margin-bottom: 8px;
+    }
+
+    .delete-button {
+      margin-left: 0; /* Убираем автоматический отступ слева */
+      margin-top: 8px; /* Добавляем отступ сверху */
+      width: 100%; /* Растягиваем кнопку на всю ширину */
+    }
+
+    .generate-post-button {
+      margin-left: 0; /* Убираем автоматический отступ слева */
+      margin-top: 8px; /* Добавляем отступ сверху */
+      width: 100%; /* Растягиваем кнопку на всю ширину */
+    }
+  }
+
+  /* Стили для контейнера изображения */
+  .image-container {
     width: 100%;
-   }
+    /* height: 0; Изначально без высоты */
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    text-align: center;
+    overflow: hidden;
+    position: relative; /* Для размещения кнопки */
+    transition: height 0.3s ease; /* Плавное изменение высоты */
+  }
 
-   .time-checkbox-delete-row {
-    flex-direction: column;
-    align-items: flex-start;
-   }
+  .image-container.has-image {
+    height: 300px; /* Высота, когда есть изображение */
+  }
 
-   .time-checkbox-delete-row .time-input {
-    margin-bottom: 8px;
-   }
+  .image-container img {
+    max-width: 100%;
+    max-height: 100%;
+  }
 
-   .delete-button {
-    margin-left: 0; /* Убираем автоматический отступ слева */
-    margin-top: 8px; /* Добавляем отступ сверху */
-    width: 100%; /* Растягиваем кнопку на всю ширину */
-   }
+  .image-container button {
+    /* position: absolute; */
+    /* bottom: 10px; */
+    /* left: 50%; */
+    /* transform: translateX(-50%); */
+    display: block; /* Кнопка занимает всю ширину контейнера */
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+  }
 
-   .generate-post-button {
-    margin-left: 0; /* Убираем автоматический отступ слева */
-    margin-top: 8px; /* Добавляем отступ сверху */
-    width: 100%; /* Растягиваем кнопку на всю ширину */
-   }
+  /* Стили для скрытого инпута для загрузки изображения */
+  #imageUpload {
+    display: none;
+  }
+
+  /* Стили для кнопки "Выбрать изображение" */
+  .image-container button {
+    width: auto; /* Возвращаем авто-ширину */
+    text-align: left; /* Выравниваем текст по левому краю */
   }
  </style>
 </head>
@@ -270,30 +331,30 @@
  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
 
  nextMonthBtn.addEventListener("click", () => {
-  currentMonth++;
-  if (currentMonth > 11) {
-  currentMonth = 0;
-  currentYear++;
-  }
-  calendarContainer.innerHTML = '';
-  calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
+   currentMonth++;
+   if (currentMonth > 11) {
+     currentMonth = 0;
+     currentYear++;
+   }
+   calendarContainer.innerHTML = '';
+   calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
  });
 
  // Функция для получения шаблонов пользователя
  function fetchUserTemplates() {
-  return fetch(`${server}/user-templates?chatId=${chatId}`)
-  .then(response => {
-   if (!response.ok) {
-   throw new Error('Ошибка при получении шаблонов пользователя');
-   }
-   return response.json();
-  })
-  .then(templates => {
-   userTemplates = templates;
-  })
-  .catch(error => {
-   console.error("Ошибка при получении шаблонов пользователя:", error);
-  });
+   return fetch(`${server}/user-templates?chatId=${chatId}`)
+   .then(response => {
+     if (!response.ok) {
+       throw new Error('Ошибка при получении шаблонов пользователя');
+     }
+     return response.json();
+   })
+   .then(templates => {
+     userTemplates = templates;
+   })
+   .catch(error => {
+     console.error("Ошибка при получении шаблонов пользователя:", error);
+   });
  }
 
  // Вызываем функцию для получения шаблонов и каналов при загрузке страницы
@@ -301,422 +362,516 @@
  fetchUserChannels();
 
  function generateCalendar(month, year) {
-  const monthNames = [
-  "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-  "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-  ];
+   const monthNames = [
+   "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+   "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+   ];
 
-  const calendarTable = document.createElement("table");
-  calendarTable.classList.add("calendar-table", "fade-in", "table", "table-bordered");
+   const calendarTable = document.createElement("table");
+   calendarTable.classList.add("calendar-table", "fade-in", "table", "table-bordered");
 
-  const headerRow = calendarTable.insertRow();
-  const headerCell = headerRow.insertCell();
-  headerCell.colSpan = 7;
-  headerCell.innerHTML = monthNames[month] + " " + year;
+   const headerRow = calendarTable.insertRow();
+   const headerCell = headerRow.insertCell();
+   headerCell.colSpan = 7;
+   headerCell.innerHTML = monthNames[month] + " " + year;
 
-  const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-  const daysRow = calendarTable.insertRow();
-  daysOfWeek.forEach(day => {
-  const dayCell = daysRow.insertCell();
-  dayCell.innerHTML = day;
-  });
+   const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+   const daysRow = calendarTable.insertRow();
+   daysOfWeek.forEach(day => {
+     const dayCell = daysRow.insertCell();
+     dayCell.innerHTML = day;
+   });
 
-  let firstDay = (new Date(year, month)).getDay() - 1;
-  if (firstDay === -1) {
-  firstDay = 6;
-  }
+   let firstDay = (new Date(year, month)).getDay() - 1;
+   if (firstDay === -1) {
+     firstDay = 6;
+   }
 
-  const daysInMonth = 32 - new Date(year, month, 32).getDate();
+   const daysInMonth = 32 - new Date(year, month, 32).getDate();
 
-  const today = new Date();
-  const currentDay = today.getDate();
-  const currentMonthNumber = today.getMonth();
+   const today = new Date();
+   const currentDay = today.getDate();
+   const currentMonthNumber = today.getMonth();
 
-  let date = 1;
-  let contentData = null;
+   let date = 1;
+   let contentData = null;
 
-  fetchContentCount(month, year)
-  .then(data => {
-   contentData = data;
+   fetchContentCount(month, year)
+   .then(data => {
+     contentData = data;
 
-   for (let i = 0; i < 6; i++) {
-   const row = calendarTable.insertRow();
-   for (let j = 0; j < 7; j++) {
-    const cell = row.insertCell();
+     for (let i = 0; i < 6; i++) {
+       const row = calendarTable.insertRow();
+       for (let j = 0; j < 7; j++) {
+         const cell = row.insertCell();
 
-    if (i === 0 && j < firstDay) {
-    cell.innerHTML = "";
-    } else if (date > daysInMonth) {
-    break;
-    } else {
-    const fullDate = new Date(year, month, date);
-    cell.dataset.date = fullDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
-    cell.innerHTML = date;
-    cell.addEventListener('click', showTimeSelector);
+         if (i === 0 && j < firstDay) {
+           cell.innerHTML = "";
+         } else if (date > daysInMonth) {
+           break;
+         } else {
+           const fullDate = new Date(year, month, date);
+           cell.dataset.date = fullDate.toLocaleDateString('pt-br').split('/').reverse().join('-');
+           cell.innerHTML = date;
+           cell.addEventListener('click', showTimeSelector);
 
-    if (fullDate < today) {
-     cell.classList.add("past-day");
-     cell.removeEventListener('click', showTimeSelector);
-    }
+           if (fullDate < today) {
+             cell.classList.add("past-day");
+             cell.removeEventListener('click', showTimeSelector);
+           }
 
-    if (date === currentDay && month === currentMonthNumber && year === today.getFullYear()) {
-     cell.classList.remove("past-day");
-     cell.addEventListener('click', showTimeSelector);
-    }
+           if (date === currentDay && month === currentMonthNumber && year === today.getFullYear()) {
+             cell.classList.remove("past-day");
+             cell.addEventListener('click', showTimeSelector);
+           }
 
-    if (contentData) {
-     const contentForDate = contentData.find(item => item.date === cell.dataset.date);
-     if (contentForDate) {
-     const contentCount = document.createElement('span');
-     contentCount.classList.add('content-count');
-     contentCount.textContent = contentForDate.count;
-     cell.appendChild(contentCount);
+           if (contentData) {
+             const contentForDate = contentData.find(item => item.date === cell.dataset.date);
+             if (contentForDate) {
+               const contentCount = document.createElement('span');
+               contentCount.classList.add('content-count');
+               contentCount.textContent = contentForDate.count;
+               cell.appendChild(contentCount);
+             }
+           }
+
+           date++;
+         }
+       }
      }
-    }
+   })
+   .catch(error => {
+     console.error("Ошибка при получении количества заполненных шаблонов при создании календаря:", error);
+   });
 
-    date++;
-    }
-   }
-   }
-  })
-  .catch(error => {
-   console.error("Ошибка при получении количества заполненных шаблонов при создании календаря:", error);
-  });
-
-  return calendarTable;
+   return calendarTable;
  }
 
  function showTimeSelector(event) {
-  event.preventDefault();
-  const clickedDate = event.target.dataset.date;
-  selectedDate = new Date(clickedDate);
+   event.preventDefault();
+   const clickedDate = event.target.dataset.date;
+   selectedDate = new Date(clickedDate);
 
-  const selectedDays = document.querySelectorAll('.selected-day');
-  selectedDays.forEach(day => day.classList.remove('selected-day'));
+   const selectedDays = document.querySelectorAll('.selected-day');
+   selectedDays.forEach(day => day.classList.remove('selected-day'));
 
-  event.target.classList.add('selected-day');
+   event.target.classList.add('selected-day');
 
-  timeForm.style.display = "block";
-  timeEntriesContainer.innerHTML = '';
+   timeForm.style.display = "block";
+   timeEntriesContainer.innerHTML = '';
 
-  fetch(`${server}/content?chatId=${chatId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-')}`)
-  .then(response => response.json())
-  .then(data => {
-   data.forEach((entry, index) => {
-   addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl, entry.channelId);
-   addEntryButton.disabled = false; //т.к. может быть такое, что в одном числе щелкнули добавить запись и не сгенерировали пост и ткнули в другое число.
+   fetch(`${server}/content?chatId=${chatId}&date=${selectedDate.toLocaleDateString('pt-br').split('/').reverse().join('-')}`)
+   .then(response => response.json())
+   .then(data => {
+     data.forEach((entry, index) => {
+       addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl, entry.channelId);
+     });
+   })
+   .catch(error => {
+     console.error("Ошибка при получении данных:", error);
    });
-  })
-  .catch(error => {
-   console.error("Ошибка при получении данных:", error);
-  });
  }
 
  function fetchContentCount(month, year) {
-  const firstDayOfMonth = new Date(year, month, 1);
-  const lastDayOfMonth = new Date(year, month + 1, 0);
-  const firstMonthValue = firstDayOfMonth.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
+   const firstDayOfMonth = new Date(year, month, 1);
+   const lastDayOfMonth = new Date(year, month + 1, 0);
+   const firstMonthValue = firstDayOfMonth.toLocaleDateString('pt-br').split('/').reverse().join('-');
 
-  return fetch(`${server}/content-count?chatId=${chatId}&date=${firstMonthValue}`)
-  .then(response => response.json())
-  .catch(error => {
-   console.error("Ошибка при получении количества заполненных шаблонов:", error);
-   throw error;
-  });
+   return fetch(`${server}/content-count?chatId=${chatId}&date=${firstMonthValue}`)
+   .then(response => response.json())
+   .catch(error => {
+     console.error("Ошибка при получении количества заполненных шаблонов:", error);
+     throw error;
+   });
  }
 
  function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '', channelId = null) {
-  const timeEntryDiv = document.createElement('div');
-  timeEntryDiv.classList.add('time-entry');
+   const timeEntryDiv = document.createElement('div');
+   timeEntryDiv.classList.add('time-entry');
+   timeEntryDiv.dataset.id = id; // Добавляем id к timeEntryDiv
 
-  // Строка для времени, чекбокса и кнопки
-  const timeCheckboxDeleteRow = document.createElement('div');
-  timeCheckboxDeleteRow.classList.add('time-checkbox-delete-row');
+   // Строка для времени
+   const timeRow = document.createElement('div');
+   timeRow.classList.add('time-checkbox-delete-row');
 
-  const timeInput = document.createElement('input');
-  timeInput.classList.add('time-input');
-  timeInput.type = 'text';
-  timeInput.placeholder = 'HH:mm';
-  timeInput.addEventListener('input', validateTimeInput);
-  timeInput.addEventListener('input', addColon);
+   const timeInput = document.createElement('input');
+   timeInput.classList.add('time-input');
+   timeInput.type = 'text';
+   timeInput.placeholder = 'HH:mm';
+   timeInput.value = time; // Устанавливаем время, если оно передано
+   timeInput.addEventListener('input', validateTimeInput);
+   timeInput.addEventListener('input', addColon);
+   timeRow.appendChild(timeInput);
 
-  // Контейнер для чекбокса и лейбла
-  const checkboxContainer = document.createElement('div');
-  checkboxContainer.classList.add('checkbox-container');
+   // Добавляем строку времени в timeEntryDiv
+   timeEntryDiv.appendChild(timeRow);
 
-  const generateImageCheckbox = document.createElement('input');
-  generateImageCheckbox.type = 'checkbox';
-  generateImageCheckbox.id = `generateImage-${id || Math.random().toString(36).substring(2)}`;
+   // Контейнер для изображения
+   const imageContainer = document.createElement('div');
+   imageContainer.classList.add('image-container');
+   if (imageUrl) {
+     imageContainer.classList.add('has-image'); // Добавляем класс, если есть изображение
+   }
+   timeEntryDiv.appendChild(imageContainer);
 
-  const generateImageLabel = document.createElement('label');
-  generateImageLabel.htmlFor = generateImageCheckbox.id;
-  generateImageLabel.textContent = 'Сгенерировать изображение';
+   // Создание кнопки для загрузки изображения.
+   const uploadButton = document.createElement('button');
+   uploadButton.textContent = 'Выбрать файл';
+   uploadButton.addEventListener('click', () => {
+     imageUpload.click();
+   });
+   imageContainer.appendChild(uploadButton);
 
-  // Добавляем чекбокс и лейбл в контейнер
-  checkboxContainer.appendChild(generateImageCheckbox);
-  checkboxContainer.appendChild(generateImageLabel);
+   // Скрытый инпут для хранения imageUrl
+   const imageUrlInput = document.createElement('input');
+   imageUrlInput.type = 'hidden';
+   imageUrlInput.classList.add('image-url-input');
+   imageUrlInput.value = imageUrl;
+   imageContainer.appendChild(imageUrlInput);
 
-  //User channels
-  channelsExists = userChannels.length > 0;
-  const channelSelect = document.createElement('select');
-  channelSelect.classList.add('channel-select');
-  if (channelsExists) {
-    let channelOptions = '<option value="">Отправить в чат с Channel Autopilot</option>';
-    userChannels.forEach(channel => {
-      channelOptions += `<option value="${channel.id}" ${channel.id === channelId ? 'selected' : ''}>${channel.channelName}</option>`;
-    });
-    channelSelect.innerHTML = channelOptions;
-  }
+   // Скрытый инпут для загрузки изображения
+   const imageUpload = document.createElement('input');
+   imageUpload.type = 'file';
+   imageUpload.id = `imageUpload-${id || Math.random().toString(36).substring(2)}`; // Уникальный ID для каждого input
+   imageUpload.accept = 'image/*';
+   imageUpload.style.display = 'none'; // чтобы не было двух "кнопок" "выбрать файл"
+   imageContainer.appendChild(imageUpload);
 
-  const deleteButton = document.createElement('button');
-  deleteButton.classList.add('delete-button');
-  deleteButton.textContent = 'Удалить запись';
-  deleteButton.addEventListener('click', () => {
-    timeEntryDiv.remove();
-  });
+   // Чекбокс "Сгенерировать изображение" (изначально скрыт)
+   const generateImageCheckbox = document.createElement('input');
+   generateImageCheckbox.type = 'checkbox';
+   generateImageCheckbox.id = `generateImage-${id || Math.random().toString(36).substring(2)}`;
+   const generateImageLabel = document.createElement('label');
+   generateImageLabel.htmlFor = generateImageCheckbox.id;
+   generateImageLabel.textContent = 'Сгенерировать изображение';
+   timeRow.appendChild(generateImageCheckbox);
+   timeRow.appendChild(generateImageLabel);
 
-  const generatePostButton = document.createElement('button');
-  generatePostButton.classList.add('generate-post-button');
-  generatePostButton.textContent = 'Сгенерировать пост';
-  generatePostButton.addEventListener('click', () => {
-    // Блокируем кнопки
-    saveButton.disabled = true;
-    generatePostButton.disabled = true;
+   // Обработчик изменения чекбокса "Сгенерировать изображение"
+   generateImageCheckbox.addEventListener('change', () => {
+     if (generateImageCheckbox.checked) {
+       // Скрываем кнопку выбора и контейнер изображения
+       uploadButton.style.display = 'none';
+       imageContainer.style.display = 'none';
+     } else {
+       // Показываем кнопку выбора и контейнер изображения
+       uploadButton.style.display = 'block';
+       imageContainer.style.display = 'block';
+     }
+   });
 
-    const timeInput = timeEntryDiv.querySelector('.time-input');
-    const typeSelect = timeEntryDiv.querySelector('.type-select');
-    const templateSelect = timeEntryDiv.querySelector('.template-select');
-    const channelSelect = timeEntryDiv.querySelector('.channel-select');
-    const textInput = timeEntryDiv.querySelector('.text-input');
-    const generateImageCheckbox = timeEntryDiv.querySelector('input[type="checkbox"]');
+   // Обработчик изменения файла для загрузки изображения
+   imageUpload.addEventListener('change', (event) => {
+     generateImageCheckbox.style.display = 'none'; // Скрываем чекбокс генерации
+     generateImageLabel.style.display = 'none'; // Скрываем лейбл чекбокса
+     const file = event.target.files[0];
+     const reader = new FileReader();
 
-    const [hours, minutes] = timeInput.value.split(':');
-    const entryData = {
-     chatId: chatId,
-     date: selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-'),
-     time: `${hours}:${minutes}`,
-     text: textInput.value,
-     type: typeSelect ? typeSelect.value : null,
-     templateId: templateSelect ? templateSelect.value : null,
-     channelId: channelSelect ? channelSelect.value : null,
-     generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
-    };
-    console.log("Data for generate post: ", entryData);
-
-    fetch(`${server}/generate-post`, {
-     method: 'POST',
-     headers: {
-      'Content-Type': 'application/json'
-     },
-     body: JSON.stringify(entryData)
-    })
-    .then(response => {
-       if (!response.ok) {
-        throw new Error('Ошибка при отправке данных на сервер');
+     reader.onload = (e) => {
+       // Если в контейнере уже есть изображение, заменяем его
+       const existingImage = imageContainer.querySelector('img');
+       if (existingImage) {
+         existingImage.src = e.target.result;
+       } else {
+         // Создаем и добавляем изображение
+         const image = document.createElement('img');
+         image.id = 'displayedImage';
+         image.src = e.target.result;
+         image.alt = 'Изображение';
+         imageContainer.appendChild(image);
        }
-       return response.json();
-    })
-    .then(createdContent => {
-        timeEntryDiv.remove();
-        addTimeEntry(createdContent.time, createdContent.type, createdContent.text, createdContent.id, createdContent.templateId, createdContent.imageUrl, createdContent.channelId);
-        addEntryButton.disabled = false; //т.к. может быть такое, что в одном числе щелкнули добавить запись и не сгенерировали пост и ткнули в другое число.
 
-       console.debug('Пост успешно сгенерирован:', createdContent);
-    })
-    .catch(error => {
-      console.error('Произошла ошибка при генерации поста:', error);
-    })
-    .finally(() => {
-       // Разблокируем кнопки после завершения запроса
-       addEntryButton.disabled = false;
-       saveButton.disabled = false;
-       generatePostButton.disabled = false;
-    });
-  });
+       // Делаем контейнер видимым и устанавливаем высоту
+       imageContainer.style.display = 'block';
+       imageContainer.classList.add('has-image');
 
-  // Добавляем элементы в строку
-  const timeInputWrapper = document.createElement('div'); // Создаём обёртку
-  timeInputWrapper.classList.add('time-input-wrapper');
+       // Отправка изображения на сервер
+       const formData = new FormData();
+       formData.append('image', file);
+       //todo: реализовать метод обработки изображения на сервере.
+       // fetch(`${server}/upload-image`, {
+       //   method: 'POST',
+       //   body: formData
+       // })
+       // .then(response => {
+       //   if (!response.ok) {
+       //     throw new Error('Ошибка при отправке изображения на сервер');
+       //   }
+       //   return response.json();
+       // })
+       // .then(data => {
+       //   imageUrlInput.value = data.imageUrl;
+       //   console.log('Изображение успешно загружено:', data.imageUrl);
+       // })
+       // .catch(error => {
+       //   console.error('Произошла ошибка при загрузке изображения:', error);
+       // });
+     };
 
-  const textInput = document.createElement('textarea');
-  textInput.classList.add('text-input');
-  textInput.placeholder = 'Введите текст';
-  textInput.value = text;
+     reader.readAsDataURL(file);
+   });
 
-  const imageUrlInput = document.createElement('textarea');
-  imageUrlInput.classList.add('image-url-input');
-  imageUrlInput.placeholder = 'URL изображения';
-  imageUrlInput.value = imageUrl;
+   const selectRow = document.createElement('div');
+   selectRow.classList.add('select-row');
+   timeEntryDiv.appendChild(selectRow);
 
-  if (id) {
-  //если пришел готовый пост от сервера
-  timeCheckboxDeleteRow.appendChild(timeInput);
-
-  timeEntryDiv.dataset.id = id;
-  timeInput.value = time;
-
-  if (channelId) {
-    channelSelect.value = channelId;
-    channelSelect.disabled = true;
-    timeCheckboxDeleteRow.appendChild(channelSelect);
-  }
-  timeEntryDiv.appendChild(timeCheckboxDeleteRow);
-  timeEntryDiv.appendChild(imageUrlInput);
-  timeEntryDiv.appendChild(textInput);
-  timeEntryDiv.appendChild(deleteButton);
-  } else {
-  const selectRow = document.createElement('div');
-  selectRow.classList.add('select-row');
-
-  const typeSelect = document.createElement('select');
-  typeSelect.classList.add('type-select');
-  typeSelect.innerHTML = `
+   const typeSelect = document.createElement('select');
+   typeSelect.classList.add('type-select');
+   typeSelect.innerHTML = `
    <option value="NEED_ADDITIONAL_CONTEXT" ${type === 'NEED_ADDITIONAL_CONTEXT' ? 'selected' : ''}>Уточнить детали</option>
    <option value="NEED_FORMATTING_POST" ${type === 'NEED_FORMATTING_POST' ? 'selected' : ''}>Отредактировать готовый пост</option>
    <option value="NOT_NEED_ADDITIONAL_CONTEXT" ${type === 'NOT_NEED_ADDITIONAL_CONTEXT' ? 'selected' : ''}>Сгенерировать пост без деталей</option>
-  `;
+   `;
 
-  const templateSelect = document.createElement('select');
-  templateSelect.classList.add('template-select');
+   const templateSelect = document.createElement('select');
+   templateSelect.classList.add('template-select');
+   let templateOptions = '<option value="">Выберите шаблон</option>';
+   userTemplates.forEach(template => {
+     templateOptions += `<option value="${template.id}" ${template.id === templateId ? 'selected' : ''}>${template.shortName}</option>`;
+   });
+   templateSelect.innerHTML = templateOptions;
 
-  let templateOptions = '<option value="">Выберите шаблон</option>';
-  userTemplates.forEach(template => {
-   templateOptions += `<option value="${template.id}" ${template.id === templateId ? 'selected' : ''}>${template.shortName}</option>`;
-  });
-  templateSelect.innerHTML = templateOptions;
+   let channelsExists = userChannels.length > 0;
+   const channelSelect = document.createElement('select');
+   channelSelect.classList.add('channel-select');
+   if (channelsExists) {
+     let channelOptions = '<option value="">Отправить в чат с Channel Autopilot</option>';
+     userChannels.forEach(channel => {
+       channelOptions += `<option value="${channel.id}" ${channel.id === channelId ? 'selected' : ''}>${channel.channelName}</option>`;
+     });
+     channelSelect.innerHTML = channelOptions;
+   }
 
-  timeCheckboxDeleteRow.appendChild(timeInput);
-  timeCheckboxDeleteRow.appendChild(checkboxContainer);
+   // Выбор типа, шаблона и канала (только для новых записей)
+   if (!id) {
+     selectRow.appendChild(typeSelect);
+     selectRow.appendChild(templateSelect);
+     if (channelsExists) {
+       selectRow.appendChild(channelSelect);
+     }
+   } else {
+     // Для уже существующих записей - только отображение выбранных значений
+     if (channelId) {
+       const channelLabel = document.createElement('div');
+       channelLabel.textContent = `Канал: ${userChannels.find(channel => channel.id === channelId).channelName}`;
+       timeEntryDiv.appendChild(channelLabel);
+     }
+   }
 
-  selectRow.appendChild(typeSelect);
-  selectRow.appendChild(templateSelect);
+   // Поле для ввода текста
+   const textInput = document.createElement('textarea');
+   textInput.classList.add('text-input');
+   textInput.placeholder = 'Введите текст';
+   textInput.value = text; // Устанавливаем текст, если он передан
+   timeEntryDiv.appendChild(textInput);
 
-  if (channelsExists) {
-    selectRow.appendChild(channelSelect);
-  }
+   // Кнопка "Сгенерировать пост" (только для новых записей)
+   if (!id) {
+     const generatePostButton = document.createElement('button');
+     generatePostButton.classList.add('generate-post-button');
+     generatePostButton.textContent = 'Сгенерировать пост';
 
-  timeEntryDiv.appendChild(timeCheckboxDeleteRow);
-  timeEntryDiv.appendChild(selectRow);
-  timeEntryDiv.appendChild(textInput);
-  timeEntryDiv.appendChild(generatePostButton);
-  }
-  timeCheckboxDeleteRow.appendChild(timeInputWrapper); // Добавляем обёртку в строку
+     // Создаем элемент лоадера
+     const loader = document.createElement('span');
+     loader.classList.add('loader');
+     loader.style.display = 'none'; // Изначально скрываем лоадер
+     generatePostButton.appendChild(loader);
 
-  timeEntriesContainer.appendChild(timeEntryDiv);
+     generatePostButton.addEventListener('click', () => {
+       // Блокируем кнопку и показываем лоадер
+       generatePostButton.disabled = true;
+       loader.style.display = 'inline-block';
+
+       const time = timeInput.value;
+       const type = typeSelect.value;
+       const templateId = templateSelect.value;
+       const channelId = channelSelect.value;
+       const text = textInput.value;
+       const generateImage = generateImageCheckbox.checked;
+
+       const [hours, minutes] = time.split(':');
+       const entryData = {
+         chatId: chatId,
+         date: selectedDate.toLocaleDateString('pt-br').split('/').reverse().join('-'),
+         time: `${hours}:${minutes}`,
+         text: text,
+         type: type,
+         templateId: templateId,
+         channelId: channelId,
+         generateImage: generateImage
+       };
+
+       fetch(`${server}/generate-post`, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         },
+         body: JSON.stringify(entryData)
+       })
+       .then(response => {
+         if (!response.ok) {
+           throw new Error('Ошибка при отправке данных на сервер');
+         }
+         return response.json();
+       })
+       .then(createdContent => {
+         // Удаляем старую запись и создаем новую с данными, полученными с сервера
+         timeEntryDiv.remove();
+         addTimeEntry(createdContent.time, createdContent.type, createdContent.text, createdContent.id, createdContent.templateId, createdContent.imageUrl, createdContent.channelId);
+       })
+       .catch(error => {
+         console.error('Произошла ошибка при генерации поста:', error);
+       })
+       .finally(() => {
+         // Разблокируем кнопку и скрываем лоадер после завершения запроса
+         generatePostButton.disabled = false;
+         loader.style.display = 'none';
+       });
+     });
+     timeEntryDiv.appendChild(generatePostButton);
+   }
+
+   // Добавление кнопки "Удалить"
+   const deleteButton = document.createElement('button');
+   deleteButton.classList.add('delete-button');
+   deleteButton.textContent = 'Удалить запись';
+   deleteButton.addEventListener('click', () => {
+     timeEntryDiv.remove();
+   });
+   timeEntryDiv.appendChild(deleteButton);
+
+   // Добавляем timeEntryDiv в контейнер записей
+   timeEntriesContainer.appendChild(timeEntryDiv);
+
+   // Показываем кнопку "Выбрать изображение" и чекбокс "Сгенерировать изображение" для новых записей
+   if (!id) {
+     uploadButton.style.display = 'block';
+     generateImageCheckbox.style.display = 'block';
+     generateImageLabel.style.display = 'block';
+   } else {
+     generateImageCheckbox.style.display = 'none';
+     generateImageLabel.style.display = 'none';
+   }
+   if (imageUrl) {
+     // Если запись уже существует и imageUrl не пустой, показываем изображение
+     const image = document.createElement('img');
+     image.id = 'displayedImage';
+     image.src = imageUrl;
+     image.alt = 'Изображение';
+     imageContainer.appendChild(image);
+   }
  }
 
  function validateTimeInput(event) {
-  const input = event.target;
-  const timeRegex = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+   const input = event.target;
+   const timeRegex = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
 
-  if (timeRegex.test(input.value)) {
-  input.classList.remove('invalid');
-  } else {
-  input.classList.add('invalid');
-  }
+   if (timeRegex.test(input.value)) {
+     input.classList.remove('invalid');
+   } else {
+     input.classList.add('invalid');
+   }
  }
 
  function addColon(event) {
-  const input = event.target;
-  if (input.value.length === 2) {
-  input.value += ':';
-  }
+   const input = event.target;
+   if (input.value.length === 2) {
+     input.value += ':';
+   }
  }
 
  function fetchUserChannels() {
-    return fetch(`${server}/user-channels?chatId=${chatId}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Ошибка при получении каналов пользователя');
-        }
-        return response.json();
-      })
-      .then(channels => {
-        userChannels = channels;
-      })
-      .catch(error => {
-        console.error("Ошибка при получении каналов пользователя:", error);
-      });
-  }
+   return fetch(`${server}/user-channels?chatId=${chatId}`)
+   .then(response => {
+     if (!response.ok) {
+       throw new Error('Ошибка при получении каналов пользователя');
+     }
+     return response.json();
+   })
+   .then(channels => {
+     userChannels = channels;
+   })
+   .catch(error => {
+     console.error("Ошибка при получении каналов пользователя:", error);
+   });
+ }
 
  addEntryButton.addEventListener('click', () => {
-  addTimeEntry();
-  //можно генерировать только 1 пост за 1 раз.
-  addEntryButton.disabled = true;
+   addTimeEntry();
  });
 
  saveButton.addEventListener('click', () => {
-  const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
-  const data = [];
-  const choosenDate = selectedDate.toLocaleDateString('pt-br').split('/').reverse( ).join('-');
+   const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
+   const data = [];
+   const choosenDate = selectedDate.toLocaleDateString('pt-br').split('/').reverse().join('-');
 
-  timeEntries.forEach(entry => {
-  const timeInput = entry.querySelector('.time-input');
-  const typeSelect = entry.querySelector('.type-select');
-  const templateSelect = entry.querySelector('.template-select');
-  const textInput = entry.querySelector('.text-input');
-  const imageUrlInput = entry.querySelector('.image-url-input');
-  const generateImageCheckbox = entry.querySelector('input[type="checkbox"]');
+   timeEntries.forEach(entry => {
+     const timeInput = entry.querySelector('.time-input');
+     const typeSelect = entry.querySelector('.type-select');
+     const templateSelect = entry.querySelector('.template-select');
+     const textInput = entry.querySelector('.text-input');
+     const imageUrlInput = entry.querySelector('.image-url-input'); // Получаем скрытое поле
+     const generateImageCheckbox = entry.querySelector('input[type="checkbox"]');
 
-  const [hours, minutes] = timeInput.value.split(':');
-  const entryData = {
-   id: entry.dataset.id ? entry.dataset.id : null,
-   chatId: chatId,
-   imageUrl: imageUrlInput ? imageUrlInput.value : null,
-   date: choosenDate,
-   time: `${hours}:${minutes}`,
-   text: textInput.value,
-   type: typeSelect ? typeSelect.value : null,
-   templateId: templateSelect ? templateSelect.value : null,
-   generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
-  };
+     const [hours, minutes] = timeInput.value.split(':');
+     const entryData = {
+       id: entry.dataset.id, // Используем id из dataset
+       chatId: chatId,
+       imageUrl: imageUrlInput.value, // Берем значение из скрытого поля
+       date: choosenDate,
+       time: `${hours}:${minutes}`,
+       text: textInput.value,
+       type: typeSelect ? typeSelect.value : null,
+       templateId: templateSelect ? templateSelect.value : null,
+       generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
+     };
 
-  data.push(entryData);
-  });
+     data.push(entryData);
+   });
 
-  if (data.length === 0) {
-    console.log('Все записи для выбранного числа удалены.');
-    //создаем одну запись с числом и и пользователем, для которого удалятся все посты на эту дату.
-    const deletedData = {
+   if (data.length === 0) {
+     console.log('Все записи для выбранного числа удалены.');
+     // создаем одну запись с числом и пользователем, для которого удалятся все посты на эту дату.
+     const deletedData = {
        chatId: chatId,
        date: choosenDate
-  };
+     };
 
-  data.push(deletedData);
-  }
+     data.push(deletedData);
+   }
 
-  console.log('Данные для сохранения:', data);
+   console.log('Данные для сохранения:', data);
 
-  fetch(`${server}/update-content`, {
-  method: 'PUT',
-  headers: {
-   'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(data)
-  })
-  .then(response => {
-  if (!response.ok) {
-   throw new Error('Ошибка при отправке данных на сервер');
-  }
-  console.log('Данные успешно отправлены на сервер');
-  return response.json();
-  })
-  .then(data => {
-  console.debug('Ответ от сервера:', data);
-  })
-  .catch(error => {
-  console.error('Произошла ошибка:', error);
-  });
+   fetch(`${server}/update-content`, {
+     method: 'PUT',
+     headers: {
+       'Content-Type': 'application/json'
+     },
+     body: JSON.stringify(data)
+   })
+   .then(response => {
+     if (!response.ok) {
+       throw new Error('Ошибка при отправке данных на сервер');
+     }
+     console.log('Данные успешно отправлены на сервер');
+     return response.json();
+   })
+   .then(data => {
+     console.debug('Ответ от сервера:', data);
+   })
+   .catch(error => {
+     console.error('Произошла ошибка:', error);
+   });
 
-  timeForm.style.display = "none";
-  const selectedDays = document.querySelectorAll('.selected-day');
-  selectedDays.forEach(day => day.classList.remove('selected-day'));
+   timeForm.style.display = "none";
+   const selectedDays = document.querySelectorAll('.selected-day');
+   selectedDays.forEach(day => day.classList.remove('selected-day'));
 
-  //обновление календаря, чтобы счетчики обновились.
-  const currDate = new Date(choosenDate);
-  const calendarContainer = document.getElementById("calendar");
-  calendarContainer.innerHTML = '';
-  calendarContainer.appendChild(generateCalendar(currDate.getMonth(), currDate.getFullYear()));
+   // обновление календаря, чтобы счетчики обновились.
+   const currDate = new Date(choosenDate);
+   const calendarContainer = document.getElementById("calendar");
+   calendarContainer.innerHTML = '';
+   calendarContainer.appendChild(generateCalendar(currDate.getMonth(), currDate.getFullYear()));
  });
 </script>
 </body>
