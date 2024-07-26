@@ -166,7 +166,8 @@
       background-color: #008000;
     }
 
-    .generate-post-button:disabled {
+    .generate-post-button:disabled,
+    .delete-button:disabled {
       background-color: #ccc; /* Или любой другой серый цвет */
     }
 
@@ -680,6 +681,9 @@
       generatePostButton.addEventListener('click', () => {
         // Блокируем кнопку и показываем лоадер
         generatePostButton.disabled = true;
+        saveButton.disabled = true;
+        deleteButton.disabled = true;
+        addEntryButton.disabled = true;
         loader.style.display = 'inline-block';
 
         const time = timeInput.value;
@@ -725,6 +729,9 @@
         .finally(() => {
           // Разблокируем кнопку и скрываем лоадер после завершения запроса
           generatePostButton.disabled = false;
+          saveButton.disabled = false;
+          deleteButton.disabled = false;
+          addEntryButton.disabled = false;
           loader.style.display = 'none';
         });
       });
