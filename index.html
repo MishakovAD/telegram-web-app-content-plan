@@ -588,24 +588,24 @@
        // Отправка изображения на сервер
        const formData = new FormData();
        formData.append('image', file);
-       //todo: реализовать метод обработки изображения на сервере.
-       // fetch(`${server}/upload-image`, {
-       //   method: 'POST',
-       //   body: formData
-       // })
-       // .then(response => {
-       //   if (!response.ok) {
-       //     throw new Error('Ошибка при отправке изображения на сервер');
-       //   }
-       //   return response.json();
-       // })
-       // .then(data => {
-       //   imageUrlInput.value = data.imageUrl;
-       //   console.log('Изображение успешно загружено:', data.imageUrl);
-       // })
-       // .catch(error => {
-       //   console.error('Произошла ошибка при загрузке изображения:', error);
-       // });
+
+       fetch(`${server}/upload-image`, {
+         method: 'POST',
+         body: formData
+       })
+       .then(response => {
+         if (!response.ok) {
+           throw new Error('Ошибка при отправке изображения на сервер');
+         }
+         return response.json();
+       })
+       .then(data => {
+         imageUrlInput.value = data.imageUrl;
+         console.log('Изображение успешно загружено:', data.imageUrl);
+       })
+       .catch(error => {
+         console.error('Произошла ошибка при загрузке изображения:', error);
+       });
      };
 
      reader.readAsDataURL(file);
