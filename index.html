@@ -670,7 +670,13 @@
    timeEntryDiv.appendChild(textInput);
 
    $(textInput).summernote({
-     height: 400
+     height: 400,
+     toolbar: [
+     // ['style', ['style']], // убираем выпадающее меню со стилями
+     ['font', ['bold', 'italic', 'strikethrough', 'clear']], // только базовые настройки шрифта
+     ['para', ['ol']], // работа с абзацами и списками 'ul' - плохо работае в тг, удалил пока
+     ['insert', ['link']] // вставка ссылок и картинок
+   ]
    });
 
    // Кнопка "Сгенерировать пост" (только для новых записей)
