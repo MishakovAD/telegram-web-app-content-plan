@@ -673,10 +673,32 @@
      height: 400,
      toolbar: [
      // ['style', ['style']], // убираем выпадающее меню со стилями
-     ['font', ['bold', 'italic', 'strikethrough', 'clear']], // только базовые настройки шрифта
+     ['font', ['bold', 'italic', 'strikethrough', 'underline', 'clear']], // только базовые настройки шрифта
      ['para', ['ol']], // работа с абзацами и списками 'ul' - плохо работае в тг, удалил пока
      ['insert', ['link']] // вставка ссылок и картинок
-   ]
+   ],
+   buttons: {
+          bold: function (context) {
+              var ui = $.summernote.ui;
+              return ui.button({
+                  contents: '<i class="fa fa-bold"></i>',
+                  tooltip: 'Bold',
+                  click: function () {
+                      context.invoke('editor.wrapSelection', '<b>', '</b>');
+                  }
+              }).render();
+          },
+          italic: function (context) {
+              var ui = $.summernote.ui;
+              return ui.button({
+                  contents: '<i class="fa fa-italic"></i>',
+                  tooltip: 'Italic',
+                  click: function () {
+                      context.invoke('editor.wrapSelection', '__', '__');
+                  }
+              }).render();
+          }
+      }
    });
 
    // Кнопка "Сгенерировать пост" (только для новых записей)
