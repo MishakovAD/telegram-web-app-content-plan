@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Reminder</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column; /* Оставляем колоночное расположение для контейнера */
+  }
+
+  .wheel-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .wheel {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .wheel-item {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #eee;
+    color: #333;
+    text-align: center;
+    line-height: 48px;
+    margin: 0 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    font-size: 16px;
+  }
+
+  .wheel-item.active {
+    background-color: #ddd;
+  }
+
+  .wheel-item:hover {
+    transform: scale(1.1);
+  }
+
+  .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 12px solid #333;
+    margin-left: 8px;
+  }
+
+  .arrow.left {
+    right: 50%;
+    transform: translateX(50%) translateY(-50%) rotate(180deg);
+  }
+
+  .arrow.right {
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+
+  .wheel-item.selected {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .wheel-item.selected:hover {
+    transform: scale(1);
+  }
+
+  .button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  /* Медиа-запрос для экранов меньше 600px */
+  @media (max-width: 600px) {
+    .wheel-container {
+      flex-direction: column; /* На маленьких экранах элементы располагаются вертикально */
+      align-items: center;
+    }
+  }
+ </style>
+</head>
+<body>
+<div class="container">
+ <div class="wheel-container">
+  <div class="wheel">
+   <div class="wheel-item" id="date-prev"></div>
+   <div class="wheel-item" id="date"></div>
+   <div class="wheel-item" id="date-next"></div>
+  </div>
+  <div class="wheel">
+   <div class="wheel-item" id="hour-prev"></div>
+   <div class="wheel-item" id="hour"></div>
+   <div class="wheel-item" id="hour-next"></div>
+  </div>
+  <div class="wheel">
+   <div class="wheel-item" id="minute-prev"></div>
+   <div class="wheel-item" id="minute"></div>
+   <div class="wheel-item" id="minute-next"></div>
+  </div>
+ </div>
+ <button class="button">Напомнить</button>
+</div>
+
+<script>
+ const dateItem = document.getElementById('date');
+ const datePrev = document.getElementById('date-prev');
+ const dateNext = document.getElementById('date-next');
+ const hourItem = document.getElementById('hour');
+ const hourPrev = document.getElementById('hour-prev');
+ const hourNext = document.getElementById('hour-next');
+ const minuteItem = document.getElementById('minute');
+ const minutePrev = document.getElementById('minute-prev');
+ const minuteNext = document.getElementById('minute-next');
+
+ const today = new Date();
+ let selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+ let selectedHour = today.getHours();
+ let selectedMinute = today.getMinutes();
+
+ function updateDate() {
+  const day = selectedDate.getDate();
+  const month = selectedDate.toLocaleString('default', { month: 'short' });
+  dateItem.textContent = `${month} ${day}`;
+ }
+
+ function updateHour() {
+  hourItem.textContent = selectedHour.toString().padStart(2, '0');
+ }
+
+ function updateMinute() {
+  minuteItem.textContent = selectedMinute.toString().padStart(2, '0');
+ }
+
+ function selectItem(item) {
+  const wheelItems = item.parentElement.querySelectorAll('.wheel-item');
+  wheelItems.forEach(i => i.classList.remove('selected'));
+  item.classList.add('selected');
+ }
+
+ dateItem.classList.add('selected');
+ hourItem.classList.add('selected');
+ minuteItem.classList.add('selected');
+
+ updateDate();
+ updateHour();
+ updateMinute();
+
+ let dateTimer;
+ let hourTimer;
+ let minuteTimer;
+
+ function handleDateScroll(direction) {
+  clearTimeout(dateTimer);
+  if (direction === 'prev') {
+   selectedDate.setDate(selectedDate.getDate() - 1);
+  } else if (direction === 'next') {
+   selectedDate.setDate(selectedDate.getDate() + 1);
+  }
+  updateDate();
+  selectItem(dateItem);
+  dateTimer = setTimeout(() => {
+   handleDateScroll(direction);
+  }, 100);
+ }
+
+ function handleHourScroll(direction) {
+  clearTimeout(hourTimer);
+  if (direction === 'prev') {
+   selectedHour = (selectedHour - 1 + 24) % 24;
+  } else if (direction === 'next') {
+   selectedHour = (selectedHour + 1) % 24;
+  }
+  updateHour();
+  selectItem(hourItem);
+  hourTimer = setTimeout(() => {
+   handleHourScroll(direction);
+  }, 100);
+ }
+
+ function handleMinuteScroll(direction) {
+  clearTimeout(minuteTimer);
+  if (direction === 'prev') {
+   selectedMinute = (selectedMinute - 1 + 60) % 60;
+  } else if (direction === 'next') {
+   selectedMinute = (selectedMinute + 1) % 60;
+  }
+  updateMinute();
+  selectItem(minuteItem);
+  minuteTimer = setTimeout(() => {
+   handleMinuteScroll(direction);
+  }, 100);
+ }
+
+ datePrev.addEventListener('mousedown', () => {
+  handleDateScroll('prev');
+ });
+ datePrev.addEventListener('mouseup', () => {
+  clearTimeout(dateTimer);
+ });
+
+ dateNext.addEventListener('mousedown', () => {
+  handleDateScroll('next');
+ });
+ dateNext.addEventListener('mouseup', () => {
+  clearTimeout(dateTimer);
+ });
+
+ hourPrev.addEventListener('mousedown', () => {
+  handleHourScroll('prev');
+ });
+ hourPrev.addEventListener('mouseup', () => {
+  clearTimeout(hourTimer);
+ });
+
+ hourNext.addEventListener('mousedown', () => {
+  handleHourScroll('next');
+ });
+ hourNext.addEventListener('mouseup', () => {
+  clearTimeout(hourTimer);
+ });
+
+ minutePrev.addEventListener('mousedown', () => {
+  handleMinuteScroll('prev');
+ });
+ minutePrev.addEventListener('mouseup', () => {
+  clearTimeout(minuteTimer);
+ });
+
+ minuteNext.addEventListener('mousedown', () => {
+  handleMinuteScroll('next');
+ });
+ minuteNext.addEventListener('mouseup', () => {
+  clearTimeout(minuteTimer);
+ });
+
+ const button = document.querySelector('.button');
+ button.addEventListener('click', () => {
+  const reminderTime = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedHour, selectedMinute);
+  console.log(`Напомнить ${reminderTime.toLocaleString()}`);
+  alert(`Напомнить ${reminderTime.toLocaleString()}`);
+ });
+</script>
+</body>
+</html>
