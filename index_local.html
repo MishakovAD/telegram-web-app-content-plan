@@ -101,11 +101,24 @@
     }
 
     /* Стили для строки с временем, чекбоксом и кнопкой */
-    .time-checkbox-delete-row {
+    .time-delete-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap; /* Разрешаем перенос элементов */
+    }
+
+    .image-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; /* Разрешаем перенос элементов */
+      margin-top: 10px; /* Отступ сверху от textInput */
+    }
+
+    .image-row > button {
+      flex: 1; /* Кнопки занимают все доступное пространство */
+      margin-right: 5px; /* Отступ справа от каждой кнопки */
     }
 
     .time-input-wrapper {
@@ -114,16 +127,10 @@
       margin-bottom: 8px; /* Отступ снизу для мобильных */
     }
 
-    .time-checkbox-delete-row .time-input {
+    .time-delete-row .time-input {
       width: 80px;
       text-align: center;
       margin-right: 10px;
-    }
-
-    .checkbox-container {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
     }
 
     .delete-button {
@@ -213,12 +220,12 @@
         width: 100%;
       }
 
-      .time-checkbox-delete-row {
+      .time-delete-row {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      .time-checkbox-delete-row .time-input {
+      .time-delete-row .time-input {
         margin-bottom: 8px;
       }
 
@@ -235,36 +242,35 @@
       }
     }
 
-    /* Стили для контейнера изображения */
-    .image-container {
-      width: 100%;
-      /* height: 0; Изначально без высоты */
-      border: 1px solid #ccc;
-      margin: 20px auto;
-      text-align: center;
-      overflow: hidden;
-      position: relative; /* Для размещения кнопки */
-      transition: height 0.3s ease; /* Плавное изменение высоты */
+
+    .image-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; /* Разрешаем перенос элементов */
+      margin-top: 10px; /* Отступ сверху от textInput */
     }
 
-    .image-container.has-image {
-      height: 300px; /* Высота, когда есть изображение */
+    .image-row > button {
+      flex: 1; /* Кнопки занимают все доступное пространство */
+      margin-right: 5px; /* Отступ справа от каждой кнопки */
+    }
+
+   /* Стили для контейнера изображения */
+    .image-container {
+      width: 100%;
+      height: 200px; /* Фиксированная высота контейнера */
+      border: 1px solid #ccc;
+      margin-bottom: 10px; /* Отступ снизу */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
     .image-container img {
       max-width: 100%;
       max-height: 100%;
-    }
-
-    .image-container button {
-      /* position: absolute; */
-      /* bottom: 10px; */
-      /* left: 50%; */
-      /* transform: translateX(-50%); */
-      display: block; /* Кнопка занимает всю ширину контейнера */
-      width: 100%;
-      padding: 10px;
-      margin: 0;
     }
 
     /* Стили для скрытого инпута для загрузки изображения */
@@ -329,7 +335,7 @@
   let userChannels = []; // Массив для хранения каналов пользователя
 
   // Получаем user_id из Telegram API
-  // const chatId = tg.initDataUnsafe.user.id; 
+  // const chatId = tg.initDataUnsafe.user.id;
   const chatId = 376177801;
 
   calendarContainer.appendChild(generateCalendar(currentMonth, currentYear));
@@ -468,7 +474,7 @@
     .then(response => response.json())
     .then(data => {
       data.forEach((entry, index) => {
-        addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl, entry.channelId);
+        addTimeEntry(entry.time, entry.type, entry.text, entry.id, entry.templateId, entry.imageUrl, entry.channelId, false); //при загрузке контента с сервера - не даем кнопку "Перегенерировать"
       });
     })
     .catch(error => {
@@ -489,14 +495,14 @@
     });
   }
 
-  function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '', channelId = null) {
+  function addTimeEntry(time = '', type = 'Уточнить детали', text = '', id = null, templateId = null, imageUrl = '', channelId = null, canRegenerate = true) {
     const timeEntryDiv = document.createElement('div');
     timeEntryDiv.classList.add('time-entry');
     timeEntryDiv.dataset.id = id; // Добавляем id к timeEntryDiv
 
     // Строка для времени
     const timeRow = document.createElement('div');
-    timeRow.classList.add('time-checkbox-delete-row');
+    timeRow.classList.add('time-delete-row');
 
     const timeInput = document.createElement('input');
     timeInput.classList.add('time-input');
@@ -510,110 +516,9 @@
     // Добавляем строку времени в timeEntryDiv
     timeEntryDiv.appendChild(timeRow);
 
-    // Контейнер для изображения
-    const imageContainer = document.createElement('div');
-    imageContainer.classList.add('image-container');
-    if (imageUrl) {
-      imageContainer.classList.add('has-image'); // Добавляем класс, если есть изображение
-    }
-    timeEntryDiv.appendChild(imageContainer);
-
-    // Создание кнопки для загрузки изображения.
-    const uploadButton = document.createElement('button');
-    uploadButton.textContent = 'Выбрать файл';
-    uploadButton.addEventListener('click', () => {
-      imageUpload.click();
-    });
-    imageContainer.appendChild(uploadButton);
-
-    // Скрытый инпут для хранения imageUrl
-    const imageUrlInput = document.createElement('input');
-    imageUrlInput.type = 'hidden';
-    imageUrlInput.classList.add('image-url-input');
-    imageUrlInput.value = imageUrl;
-    imageContainer.appendChild(imageUrlInput);
-
-    // Скрытый инпут для загрузки изображения
-    const imageUpload = document.createElement('input');
-    imageUpload.type = 'file';
-    imageUpload.id = `imageUpload-${id || Math.random().toString(36).substring(2)}`; // Уникальный ID для каждого input
-    imageUpload.accept = 'image/*';
-    imageUpload.style.display = 'none'; // чтобы не было двух "кнопок" "выбрать файл"
-    imageContainer.appendChild(imageUpload);
-
-    // Чекбокс "Сгенерировать изображение" (изначально скрыт)
-    const generateImageCheckbox = document.createElement('input');
-    generateImageCheckbox.type = 'checkbox';
-    generateImageCheckbox.id = `generateImage-${id || Math.random().toString(36).substring(2)}`;
-    const generateImageLabel = document.createElement('label');
-    generateImageLabel.htmlFor = generateImageCheckbox.id;
-    generateImageLabel.textContent = 'Сгенерировать изображение';
-    timeRow.appendChild(generateImageCheckbox);
-    timeRow.appendChild(generateImageLabel);
-
-    // Обработчик изменения чекбокса "Сгенерировать изображение"
-    generateImageCheckbox.addEventListener('change', () => {
-      if (generateImageCheckbox.checked) {
-        // Скрываем кнопку выбора и контейнер изображения
-        uploadButton.style.display = 'none';
-        imageContainer.style.display = 'none';
-      } else {
-        // Показываем кнопку выбора и контейнер изображения
-        uploadButton.style.display = 'block';
-        imageContainer.style.display = 'block';
-      }
-    });
-
-    // Обработчик изменения файла для загрузки изображения
-    imageUpload.addEventListener('change', (event) => {
-      generateImageCheckbox.style.display = 'none'; // Скрываем чекбокс генерации
-      generateImageLabel.style.display = 'none'; // Скрываем лейбл чекбокса
-      const file = event.target.files[0];
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        // Если в контейнере уже есть изображение, заменяем его
-        const existingImage = imageContainer.querySelector('img');
-        if (existingImage) {
-          existingImage.src = e.target.result;
-        } else {
-          // Создаем и добавляем изображение
-          const image = document.createElement('img');
-          image.id = 'displayedImage';
-          image.src = e.target.result;
-          image.alt = 'Изображение';
-          imageContainer.appendChild(image);
-        }
-
-        // Делаем контейнер видимым и устанавливаем высоту
-        imageContainer.style.display = 'block';
-        imageContainer.classList.add('has-image');
-
-        // Отправка изображения на сервер
-        const formData = new FormData();
-        formData.append('image', file);
-
-        fetch(`${server}/upload-image`, {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Ошибка при отправке изображения на сервер');
-          }
-          return response.json();
-        })
-        .then(data => {
-          imageUrlInput.value = data.imageUrl;
-          console.log('Изображение успешно загружено:', data.imageUrl);
-        })
-        .catch(error => {
-          console.error('Произошла ошибка при загрузке изображения:', error);
-        });
-      };
-
-      reader.readAsDataURL(file);
-    });
+    //Отображаем изображение, если оно есть
+    let imageContainer = null;
+    imageContainer = updateImageContainer(timeEntryDiv, imageContainer, imageUrl);  // Объявляем переменную imageContainer, даже если imageUrl пустой
 
     const selectRow = document.createElement('div');
     selectRow.classList.add('select-row');
@@ -701,11 +606,15 @@
        }
     });
 
-    // Кнопка "Сгенерировать пост" (только для новых записей)
-    if (!id) {
-      const generatePostButton = document.createElement('button');
+    // Кнопка "Сгенерировать пост"/"Перегенерировать"
+    const generatePostButton = document.createElement('button');
       generatePostButton.classList.add('generate-post-button');
-      generatePostButton.textContent = 'Сгенерировать пост';
+      generatePostButton.textContent = id ? 'Перегенерировать' : 'Сгенерировать пост';
+
+      if (!canRegenerate) {
+      //скрываем кнопку, если нельзя перегенерирорвать (при загрузке контента - при генерации нового или перегенерации возможность есть)
+        generatePostButton.style.display = 'none';
+      }
 
       // Создаем элемент лоадера
       const loader = document.createElement('span');
@@ -726,18 +635,17 @@
         const templateId = templateSelect.value;
         const channelId = channelSelect.value;
         const text = textInput.value;
-        const generateImage = generateImageCheckbox.checked;
 
         const [hours, minutes] = time.split(':');
         const entryData = {
+          id: id,
           chatId: chatId,
           date: selectedDate.toLocaleDateString('pt-br').split('/').reverse().join('-'),
           time: `${hours}:${minutes}`,
           text: text,
           type: type,
           templateId: templateId,
-          channelId: channelId,
-          generateImage: generateImage
+          channelId: channelId
         };
 
         fetch(`${server}/generate-post`, {
@@ -754,9 +662,9 @@
           return response.json();
         })
         .then(createdContent => {
-          // Удаляем старую запись и создаем новую с данными, полученными с сервера
-          timeEntryDiv.remove();
-          addTimeEntry(createdContent.time, createdContent.type, createdContent.text, createdContent.id, createdContent.templateId, createdContent.imageUrl, createdContent.channelId);
+            // Удаляем старую запись и создаем новую с данными, полученными с сервера
+            timeEntryDiv.remove();
+            addTimeEntry(createdContent.time, createdContent.type, createdContent.text, createdContent.id, createdContent.templateId, createdContent.imageUrl, createdContent.channelId, true);
         })
         .catch(error => {
           console.error('Произошла ошибка при генерации поста:', error);
@@ -771,7 +679,7 @@
         });
       });
       timeEntryDiv.appendChild(generatePostButton);
-    }
+
 
     // Добавление кнопки "Удалить"
     const deleteButton = document.createElement('button');
@@ -782,26 +690,151 @@
     });
     timeEntryDiv.appendChild(deleteButton);
 
+    // Кнопки "Сгенерировать изображение" и "Добавить изображение"
+    if (id) {
+      const imageRow = document.createElement('div');
+      imageRow.classList.add('image-row');
+
+      if (canRegenerate) {
+      //Не добавляем кнопкупри загрузке контента - при генерации нового или перегенерации возможность есть
+        const generateImageButton = document.createElement('button');
+        generateImageButton.textContent = imageUrl ? 'Перегенерировать изображение' : 'Сгенерировать изображение';
+        generateImageButton.addEventListener('click', () => {
+          // Блокируем кнопку и показываем лоадер
+          generateImageButton.disabled = true;
+          generatePostButton.disabled = true;
+          saveButton.disabled = true;
+          deleteButton.disabled = true;
+          addEntryButton.disabled = true;
+          loader.style.display = 'inline-block';
+
+          generateImage(id)
+            .then(imageUrl => {
+                // Обновляем контейнер изображения после успешного ответа
+                updateImageContainer(timeEntryDiv, imageContainer, imageUrl);
+                generateImageButton.textContent = 'Перегенерировать изображение'; // Обновляем текст кнопки
+              })
+            .finally(() => {
+              // Разблокируем кнопку и скрываем лоадер после завершения запроса
+              generateImageButton.disabled = false;
+              generatePostButton.disabled = false;
+              saveButton.disabled = false;
+              deleteButton.disabled = false;
+              addEntryButton.disabled = false;
+              loader.style.display = 'none';
+            });
+        });
+
+          // Создаем элемент лоадера
+        const loader = document.createElement('span');
+        loader.classList.add('loader');
+        loader.style.display = 'none'; // Изначально скрываем лоадер
+        generateImageButton.appendChild(loader);
+
+        imageRow.appendChild(generateImageButton);
+      }
+
+      // Создаем скрытый input type="file"
+      const imageUpload = document.createElement('input');
+      imageUpload.setAttribute('type', 'file');
+      imageUpload.setAttribute('id', 'imageUpload');
+      imageUpload.addEventListener('change', (event) => {
+        uploadFile(event, id)
+        .then(imageUrl => {
+            // Обновляем контейнер изображения после успешной загрузки
+            updateImageContainer(timeEntryDiv, imageContainer, imageUrl);
+          });
+      });
+      imageRow.appendChild(imageUpload);
+
+      const uploadImageButton = document.createElement('button');
+      uploadImageButton.textContent = 'Загрузить изображение';
+      uploadImageButton.addEventListener('click', () => {
+        imageUpload.click(); // Открываем диалог выбора файла
+      });
+      imageRow.appendChild(uploadImageButton);
+
+      timeEntryDiv.appendChild(imageRow);
+    }
+
     // Добавляем timeEntryDiv в контейнер записей
     timeEntriesContainer.appendChild(timeEntryDiv);
+  }
 
-    // Показываем кнопку "Выбрать изображение" и чекбокс "Сгенерировать изображение" для новых записей
-    if (!id) {
-      uploadButton.style.display = 'block';
-      generateImageCheckbox.style.display = 'block';
-      generateImageLabel.style.display = 'block';
-    } else {
-      generateImageCheckbox.style.display = 'none';
-      generateImageLabel.style.display = 'none';
-    }
-    if (imageUrl) {
-      // Если запись уже существует и imageUrl не пустой, показываем изображение
+  function generateImage(contentId) {
+    return fetch(`${server}/generate-image`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ contentId: contentId })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Ошибка при запросе на генерацию изображения');
+      }
+      // Обработка успешного ответа, например, отображение сообщения
+      return response.json();
+    })
+    .then(data => {
+      return data.imageUrl;
+    })
+    .catch(error => {
+      console.error('Произошла ошибка при генерации изображения:', error);
+    });
+  }
+
+  function uploadFile(event, contentId) {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+
+    return fetch(`${server}/upload-image?contentId=${contentId}`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Ошибка при загрузке изображения');
+      }
+      // Обработка успешного ответа
+      return response.json();
+    })
+    .then(data => {
+      console.log('Изображение успешно загружено!: ', data);
+      return data.imageUrl;
+    })
+    .catch(error => {
+      console.error('Произошла ошибка при загрузке изображения:', error);
+    });
+  }
+
+  function updateImageContainer(timeEntryDiv, imageContainer, imageUrl) {
+    if (!imageContainer) {
+        // Если контейнер не создан, создаем его
+        imageContainer = document.createElement('div');
+        imageContainer.classList.add('image-container');
+        timeEntryDiv.appendChild(imageContainer);
+      }
+
+      if (!imageUrl) {
+        imageContainer.style.display = 'none'; // Изначально скрываем, если еще нет изображения
+        return imageContainer;
+      }
+      imageContainer.style.display = 'block';
+
+      imageContainer.innerHTML = ''; // Очищаем содержимое контейнера
       const image = document.createElement('img');
-      image.id = 'displayedImage';
-      image.src = imageUrl;
-      image.alt = 'Изображение';
+      image.setAttribute('src', imageUrl);
       imageContainer.appendChild(image);
-    }
+
+      // Скрытый инпут для хранения imageUrl
+      const imageUrlInput = document.createElement('input');
+      imageUrlInput.type = 'hidden';
+      imageUrlInput.classList.add('image-url-input');
+      imageUrlInput.value = imageUrl;
+      imageContainer.appendChild(imageUrlInput);
+      return imageContainer;
   }
 
   function validateTimeInput(event) {
@@ -853,19 +886,17 @@
       const templateSelect = entry.querySelector('.template-select');
       const textInput = entry.querySelector('.text-input');
       const imageUrlInput = entry.querySelector('.image-url-input'); // Получаем скрытое поле
-      const generateImageCheckbox = entry.querySelector('input[type="checkbox"]');
 
       const [hours, minutes] = timeInput.value.split(':');
       const entryData = {
         id: entry.dataset.id, // Используем id из dataset
         chatId: chatId,
-        imageUrl: imageUrlInput.value, // Берем значение из скрытого поля
+        imageUrl: imageUrlInput ? imageUrlInput.value : null, // Берем значение из скрытого поля
         date: choosenDate,
         time: `${hours}:${minutes}`,
         text: textInput.value,
         type: typeSelect ? typeSelect.value : null,
-        templateId: templateSelect ? templateSelect.value : null,
-        generateImage: generateImageCheckbox ? generateImageCheckbox.checked : false
+        templateId: templateSelect ? templateSelect.value : null
       };
 
       data.push(entryData);
